@@ -26,7 +26,7 @@ metadata:
 spec:
   admin:
     resources:
-      memory: 128Mi
+      memory: 256Mi
   router:
     linkCapacity: 4
     resources:
@@ -38,7 +38,7 @@ spec:
       maxSessionsPerConnection: 2
   broker:
     resources:
-      memory: 256Mi
+      memory: 512Mi
       storage: 1Gi
     addressFullPolicy: FAIL
 ---
@@ -50,7 +50,7 @@ metadata:
 spec:
   displayName: Queue
   shortDescription: Persisted queue address
-  resourceLimits:
+  resources:
     broker: 0.5
     router: 0.1
   addressType: queue
@@ -63,7 +63,7 @@ metadata:
 spec:
   displayName: Anycast
   shortDescription: Volatile anycast address
-  resourceLimits:
+  resources:
     router: 0.1
   addressType: anycast
 ---
@@ -75,6 +75,14 @@ metadata:
 spec:
   displayName: Multicast
   shortDescription: Volatile multicast address
-  resourceLimits:
+  resources:
     router: 0.2
   addressType: multicast
+---
+apiVersion: admin.enmasse.io/v1beta1
+kind: AuthenticationService
+metadata:
+  name: none
+  namespace: enmasse-infra
+spec:
+  type: none
