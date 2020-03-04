@@ -1,9 +1,9 @@
-package io.enmasse.sandbox;
+package io.enmasse.sandbox.api;
 
 public class Tenant {
     private String name;
-    private long creationTimestamp;
-    private boolean registered;
+    private long creationTimestamp = 0;
+    private long provisionedTimestamp = 0;
 
     public String getName() {
         return name;
@@ -21,11 +21,11 @@ public class Tenant {
         this.creationTimestamp = creationTimestamp;
     }
 
-    public boolean isRegistered() {
-        return registered;
+    public long getProvisionedTimestamp() {
+        return provisionedTimestamp;
     }
 
-    public void setRegistered(boolean registered) {
-        this.registered = registered;
+    public void setProvisionedTimestamp(long provisionedTimestamp) {
+        this.provisionedTimestamp = provisionedTimestamp;
     }
 }
