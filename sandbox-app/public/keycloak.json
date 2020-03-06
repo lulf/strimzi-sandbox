@@ -1,0 +1,8 @@
+{
+  "realm": "k8s",
+  "auth-server-url": "https://keycloak.devlocal/auth/",
+  "ssl-required": "external",
+  "resource": "webapp",
+  "public-client": true,
+  "confidential-port": 0
+}
