@@ -69,4 +69,21 @@ public class TenantResource {
         tenant.setProvisionTimestamp(sandboxTenant.getSpec().getProvisionedTimestamp());
         return tenant;
     }
+
+    @DELETE
+    @Path("{name}")
+    public void delete(@PathParam("name") String name) {
+        if (!name.equals(identity.getPrincipal().getName())) {
+            throw new UnauthorizedException("Unknown tenant " + name);
+        }
+
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(crd, SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        SandboxTenant sandboxTenant = op.withName(name).get();
+        if (sandboxTenant == null) {
+            throw new NotFoundException("Unknown tenant " + name);
+        }
+        if (!op.withName(name).delete()) {
+            throw new InternalServerErrorException("Error deleting tenant");
+        }
+    }
 }
