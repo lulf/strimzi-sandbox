@@ -17,13 +17,13 @@ import io.sundr.builder.annotations.Inline;
         )
 )
 public class SandboxTenantSpec {
-    private long provisionedTimestamp = 0;
+    private String provisionedTimestamp;
 
-    public long getProvisionedTimestamp() {
+    public String getProvisionedTimestamp() {
         return provisionedTimestamp;
     }
 
-    public void setProvisionedTimestamp(long provisionedTimestamp) {
+    public void setProvisionedTimestamp(String provisionedTimestamp) {
         this.provisionedTimestamp = provisionedTimestamp;
     }
 }

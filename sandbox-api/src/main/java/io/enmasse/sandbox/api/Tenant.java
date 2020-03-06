@@ -1,9 +1,11 @@
 package io.enmasse.sandbox.api;
 
+import io.enmasse.sandbox.api.k8s.SandboxTenant;
+
 public class Tenant {
     private String name;
-    private long creationTimestamp = 0;
-    private long provisionedTimestamp = 0;
+    private String creationTimestamp;
+    private String provisionTimestamp;
 
     public String getName() {
         return name;
@@ -13,19 +15,19 @@ public class Tenant {
         this.name = name;
     }
 
-    public long getCreationTimestamp() {
+    public String getCreationTimestamp() {
         return creationTimestamp;
     }
 
-    public void setCreationTimestamp(long creationTimestamp) {
+    public void setCreationTimestamp(String creationTimestamp) {
         this.creationTimestamp = creationTimestamp;
     }
 
-    public long getProvisionedTimestamp() {
-        return provisionedTimestamp;
+    public String getProvisionTimestamp() {
+        return provisionTimestamp;
     }
 
-    public void setProvisionedTimestamp(long provisionedTimestamp) {
-        this.provisionedTimestamp = provisionedTimestamp;
+    public void setProvisionTimestamp(String provisionTimestamp) {
+        this.provisionTimestamp = provisionTimestamp;
     }
 }
