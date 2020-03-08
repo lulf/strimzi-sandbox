@@ -1,5 +1,6 @@
 package io.enmasse.sandbox.api.k8s;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import io.fabric8.kubernetes.api.model.Doneable;
 import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.sundr.builder.annotations.Buildable;
@@ -16,14 +17,15 @@ import io.sundr.builder.annotations.Inline;
                 value = "done"
         )
 )
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class SandboxTenantSpec {
-    private String provisionedTimestamp;
+    private String provisionTimestamp;
 
-    public String getProvisionedTimestamp() {
-        return provisionedTimestamp;
+    public String getProvisionTimestamp() {
+        return provisionTimestamp;
     }
 
-    public void setProvisionedTimestamp(String provisionedTimestamp) {
-        this.provisionedTimestamp = provisionedTimestamp;
+    public void setProvisionTimestamp(String provisionTimestamp) {
+        this.provisionTimestamp = provisionTimestamp;
     }
 }

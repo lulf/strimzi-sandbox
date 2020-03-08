@@ -12,9 +12,12 @@ spec:
       openAPIV3Schema:
         type: object
         properties:
-          provisionedTimestamp:
-            type: string
-  scope: Namespaced
+          spec:
+            type: object
+            properties:
+              provisionTimestamp:
+                type: string
+  scope: Cluster
   names:
     plural: sandboxtenants
     singular: sandboxtenant

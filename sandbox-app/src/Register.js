@@ -1,53 +1,68 @@
 import React, { Component } from 'react';
 import Keycloak from 'keycloak-js';
 import './App.css';
+import { Redirect } from 'react-router';
+
 
 class Register extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { keycloak: null, authenticated: false };
-  }
-
-  componentDidMount() {
-    const keycloak = Keycloak('/keycloak.json');
-    keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
-      this.setState({ keycloak: keycloak, authenticated: authenticated })
-    })
-  }
-
-  render() {
-    if (this.state.keycloak) {
-      if (this.state.authenticated) {
-        fetch('http://localhost:8080/api/tenants', {
-                crossDomain: true,
-                method: 'POST',
-                headers: {
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        'Authorization': "Bearer " + this.state.keycloak.:wq
-
-                      },
-                body: JSON.stringify({
-                    name: "myuser"
-                })
-          }).then((response) => console.log(response));
-        return (
-        <div className="App">
-          <h3>Logged in</h3>
-        </div>
-      );
-      } else {
-        return (
-          <div className="App">
-            <h3>Not logged in</h3>
-          </div>
-        )
-      }
+    constructor(props) {
+        super(props);
+        this.state = { keycloak: null, authenticated: false };
     }
-    return (
-      <div>Initializing Keycloak...</div>
-    );
-  }
+
+    componentDidMount() {
+        const keycloak = Keycloak('/keycloak.json');
+        keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
+            var self = this;
+            var state = { keycloak: keycloak, authenticated: authenticated, registered: false };
+            if (authenticated) {
+                var token = keycloak.token;
+                keycloak.loadUserProfile().then(function (profile) {
+                    fetch('http://localhost:8080/api/tenants', {
+                        crossDomain: true,
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'Authorization': "Bearer " + token,
+                        },
+                        body: JSON.stringify({
+                            name: profile.username
+                        })
+                    }).then((response) => {
+                        if (response.ok || response.status === 409) {
+                            state.registered = true;
+                        } else {
+                            state.registrationError = response.status;
+                        }
+                        self.setState(state);
+                    }).catch(function () {
+                        self.setState(state);
+                    });
+                }).catch(function() {
+                    this.setState(state);
+                });
+            } else {
+                this.setState(state);
+            }
+        })
+    }
+
+    render() {
+        if (this.state.keycloak) {
+            if (this.state.authenticated) {
+                if (this.state.registered) {
+                    return (<Redirect to="/dashboard" />);
+                }
+            }
+            return (<Redirect to="/" />);
+        }
+        return (
+                <div className="App">
+                <h3>Loading...</h3>
+                </div>
+        );
+    }
 };
 
 export default Register;
