@@ -37,6 +37,8 @@ class Dashboard extends Component {
                 }).catch(function() {
                     this.setState(state);
                 });
+            } else {
+                this.setState(state);
             }
         });
     }
@@ -64,6 +66,7 @@ class Dashboard extends Component {
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
                                 <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                <NavLink to="/">Back</NavLink>
                             </div>
                         );
                         
@@ -74,6 +77,7 @@ class Dashboard extends Component {
                                 <p>Logged in as {this.state.tenant.name}</p>
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Environment not yet provisioned</p>
+                                <NavLink to="/">Back</NavLink>
                                 </div>
                         );
                     }
@@ -96,8 +100,7 @@ class Dashboard extends Component {
         }
         return (
                 <div className="App">
-                <h3>Account not registered</h3>
-                <NavLink to="/">Back</NavLink>
+                <h3>Loading...</h3>
                 </div>
         );
     }
