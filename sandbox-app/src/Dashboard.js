@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import Keycloak from 'keycloak-js';
 import './App.css';
-import { BrowserRouter, Route, NavLink, Switch } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 class Dashboard extends Component {
     constructor(props) {
