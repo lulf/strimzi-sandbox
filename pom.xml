@@ -20,11 +20,15 @@
     <quarkus.platform.version>1.2.1.Final</quarkus.platform.version>
     <sundrio.version>0.17.2</sundrio.version>
     <surefire-plugin.version>2.22.1</surefire-plugin.version>
+    <node.version>v10.15.3</node.version>
+    <yarn.version>v1.21.1</yarn.version>
+    <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
   </properties>
   <modules>
     <module>sandbox-model</module>
     <module>sandbox-api</module>
     <module>sandbox-operator</module>
+    <module>sandbox-app</module>
   </modules>
   <dependencyManagement>
     <dependencies>
@@ -110,6 +114,11 @@
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
           </plugin>
         </plugins>
       </build>

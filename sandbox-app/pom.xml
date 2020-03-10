@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <parent>
+    <groupId>io.enmasse.sandbox</groupId>
+    <artifactId>sandbox</artifactId>
+    <version>1.0-SNAPSHOT</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>sandbox-app</artifactId>
+  <properties>
+    <sandbox-app-node-install-directory>${project.build.directory}/build</sandbox-app-node-install-directory>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.github.eirslett</groupId>
+        <artifactId>frontend-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>install node and yarn - sandbox-app</id>
+            <goals>
+              <goal>install-node-and-yarn</goal>
+            </goals>
+            <configuration>
+              <nodeVersion>${node.version}</nodeVersion>
+              <yarnVersion>${yarn.version}</yarnVersion>
+              <installDirectory>${sandbox-app-node-install-directory}</installDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>yarn install - sandbox-app</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <installDirectory>${sandbox-app-node-install-directory}</installDirectory>
+              <arguments>install --prefer-offline --no-progress --frozen-lockfile</arguments>
+            </configuration>
+          </execution>
+
+          <execution>
+            <id>yarn build - sandbox-app</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <phase>process-resources</phase>
+            <configuration>
+              <installDirectory>${sandbox-app-node-install-directory}</installDirectory>
+              <environmentVariables>
+                <REACT_APP_VERSION>${project.version}</REACT_APP_VERSION>
+              </environmentVariables>
+              <arguments>build</arguments>
+            </configuration>
+          </execution>
+          <execution>
+            <id>yarn test - sandbox-app</id>
+            <goals>
+              <goal>yarn</goal>
+            </goals>
+            <phase>test</phase>
+            <configuration>
+              <installDirectory>${sandbox-app-node-install-directory}</installDirectory>
+              <arguments>test --watchAll=false --passWithNoTests</arguments>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
