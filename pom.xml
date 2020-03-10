@@ -24,6 +24,7 @@
   <modules>
     <module>sandbox-model</module>
     <module>sandbox-api</module>
+    <module>sandbox-operator</module>
   </modules>
   <dependencyManagement>
     <dependencies>

@@ -2,12 +2,31 @@ package io.enmasse.sandbox.model;
 
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionBuilder;
+import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
+import io.fabric8.kubernetes.internal.KubernetesDeserializer;
 
 public class CustomResources {
     private CustomResources() {}
 
-    public static CustomResourceDefinition createSandboxCrd() {
-        return createCustomResource("sandbox.enmasse.io", "v1beta1", "SandboxTenant");
+    private static final CustomResourceDefinitionContext sandboxCrdContext = new CustomResourceDefinitionContext.Builder()
+            .withGroup("sandbox.enmasse.io")
+            .withScope("Cluster")
+            .withVersion("v1beta1")
+            .withPlural("sandboxtenants")
+            .withName("SandboxTenant")
+            .build();
+    private static final CustomResourceDefinition sandboxCrd = createCustomResource(sandboxCrdContext.getGroup(), sandboxCrdContext.getVersion(), sandboxCrdContext.getName());
+    static {
+        KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenant", SandboxTenant.class);
+        KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenantList", SandboxTenantList.class);
+    }
+
+    public static CustomResourceDefinitionContext getSandboxCrdContext() {
+        return sandboxCrdContext;
+    }
+
+    public static CustomResourceDefinition getSandboxCrd() {
+        return sandboxCrd;
     }
 
     private static CustomResourceDefinition createCustomResource(final String group, final String version, final String kind) {

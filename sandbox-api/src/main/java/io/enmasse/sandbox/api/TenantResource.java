@@ -4,7 +4,6 @@ import io.enmasse.sandbox.model.CustomResources;
 import io.enmasse.sandbox.model.DoneableSandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenantList;
-import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -25,12 +24,10 @@ public class TenantResource {
     @Inject
     KubernetesClient kubernetesClient;
 
-    private final CustomResourceDefinition crd = CustomResources.createSandboxCrd();
-
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void create(Tenant tenant) {
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(crd, SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         SandboxTenant sandboxTenant = op.withName(tenant.getName()).get();
         if (sandboxTenant != null) {
             throw new WebApplicationException("Tenant already exists", 409);
@@ -52,7 +49,7 @@ public class TenantResource {
             throw new UnauthorizedException("Unknown tenant " + name);
         }
 
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(crd, SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         SandboxTenant sandboxTenant = op.withName(name).get();
         if (sandboxTenant == null) {
             throw new NotFoundException("Unknown tenant " + name);
@@ -73,7 +70,7 @@ public class TenantResource {
             throw new UnauthorizedException("Unknown tenant " + name);
         }
 
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(crd, SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         SandboxTenant sandboxTenant = op.withName(name).get();
         if (sandboxTenant == null) {
             throw new NotFoundException("Unknown tenant " + name);
