@@ -13,5 +13,9 @@
       <groupId>io.sundr</groupId>
       <artifactId>builder-annotations</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.quarkus</groupId>
+      <artifactId>quarkus-kubernetes-client</artifactId>
+    </dependency>
   </dependencies>
 </project>

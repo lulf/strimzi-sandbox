@@ -22,6 +22,7 @@
     <surefire-plugin.version>2.22.1</surefire-plugin.version>
   </properties>
   <modules>
+    <module>sandbox-model</module>
     <module>sandbox-api</module>
   </modules>
   <dependencyManagement>

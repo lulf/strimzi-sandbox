@@ -1,4 +1,4 @@
-package io.enmasse.sandbox.api;
+package io.enmasse.sandbox.model;
 
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionBuilder;
@@ -6,7 +6,11 @@ import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionBui
 public class CustomResources {
     private CustomResources() {}
 
-    public static CustomResourceDefinition createCustomResource(final String group, final String version, final String kind) {
+    public static CustomResourceDefinition createSandboxCrd() {
+        return createCustomResource("sandbox.enmasse.io", "v1beta1", "SandboxTenant");
+    }
+
+    private static CustomResourceDefinition createCustomResource(final String group, final String version, final String kind) {
         String singular = kind.toLowerCase();
         String listKind = kind + "List";
         String plural = singular + "s";

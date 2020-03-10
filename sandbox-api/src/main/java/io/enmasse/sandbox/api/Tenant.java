@@ -1,7 +1,5 @@
 package io.enmasse.sandbox.api;
 
-import io.enmasse.sandbox.api.k8s.SandboxTenant;
-
 public class Tenant {
     private String name;
     private String creationTimestamp;

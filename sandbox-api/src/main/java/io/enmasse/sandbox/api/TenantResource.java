@@ -1,8 +1,9 @@
 package io.enmasse.sandbox.api;
 
-import io.enmasse.sandbox.api.k8s.DoneableSandboxTenant;
-import io.enmasse.sandbox.api.k8s.SandboxTenant;
-import io.enmasse.sandbox.api.k8s.SandboxTenantList;
+import io.enmasse.sandbox.model.CustomResources;
+import io.enmasse.sandbox.model.DoneableSandboxTenant;
+import io.enmasse.sandbox.model.SandboxTenant;
+import io.enmasse.sandbox.model.SandboxTenantList;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -24,7 +25,7 @@ public class TenantResource {
     @Inject
     KubernetesClient kubernetesClient;
 
-    private final CustomResourceDefinition crd = CustomResources.createCustomResource("sandbox.enmasse.io", "v1beta1", "SandboxTenant");
+    private final CustomResourceDefinition crd = CustomResources.createSandboxCrd();
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)

@@ -1,4 +1,4 @@
-package io.enmasse.sandbox.api.k8s;
+package io.enmasse.sandbox.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
