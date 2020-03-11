@@ -17,6 +17,7 @@ import io.sundr.builder.annotations.Inline;
 )
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SandboxTenantSpec {
+    private String subject;
     private String provisionTimestamp;
 
     public String getProvisionTimestamp() {
@@ -25,5 +26,13 @@ public class SandboxTenantSpec {
 
     public void setProvisionTimestamp(String provisionTimestamp) {
         this.provisionTimestamp = provisionTimestamp;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

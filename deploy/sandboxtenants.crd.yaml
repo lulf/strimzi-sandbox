@@ -14,7 +14,11 @@ spec:
         properties:
           spec:
             type: object
+            required:
+              - subject
             properties:
+              subject:
+                type: string
               provisionTimestamp:
                 type: string
   scope: Cluster
