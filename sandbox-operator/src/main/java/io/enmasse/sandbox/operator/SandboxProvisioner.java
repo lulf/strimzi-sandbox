@@ -33,7 +33,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "300s")
     Duration expirationTime;
 
-    @Scheduled(every = "10m")
+    @Scheduled(every = "3m")
     public synchronized void processTenants() {
 
         MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
