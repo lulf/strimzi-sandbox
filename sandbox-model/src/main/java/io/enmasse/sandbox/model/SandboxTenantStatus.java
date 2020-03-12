@@ -44,4 +44,13 @@ public class SandboxTenantStatus {
     public void setConsoleUrl(String consoleUrl) {
         this.consoleUrl = consoleUrl;
     }
+
+    @Override
+    public String toString() {
+        return "SandboxTenantStatus{" +
+                "provisionTimestamp='" + provisionTimestamp + '\'' +
+                ", expirationTimestamp='" + expirationTimestamp + '\'' +
+                ", consoleUrl='" + consoleUrl + '\'' +
+                '}';
+    }
 }

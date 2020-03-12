@@ -1,22 +1,19 @@
 package io.enmasse.sandbox.operator;
 
 import io.enmasse.sandbox.model.CustomResources;
+import io.enmasse.sandbox.model.DoneableSandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenantList;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import io.fabric8.kubernetes.client.informers.SharedIndexInformer;
-import io.quarkus.runtime.StartupEvent;
+import io.fabric8.kubernetes.client.KubernetesClientException;
+import io.fabric8.kubernetes.client.Watch;
+import io.fabric8.kubernetes.client.Watcher;
+import io.quarkus.scheduler.Scheduled;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 @ApplicationScoped
 public class SandboxOperator {
@@ -26,10 +23,46 @@ public class SandboxOperator {
     KubernetesClient kubernetesClient;
 
     @Inject
-    SandboxTenantCache tenantCache;
+    SandboxProvisioner sandboxProvisioner;
+
+    private volatile Watch watch = null;
+
+    @Scheduled(every = "10s")
+    synchronized void checkWatcher() {
+        if (watch == null) {
+            watch = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class)
+                    .inAnyNamespace()
+                    .watch(new Watcher<SandboxTenant>() {
+                        @Override
+                        public void eventReceived(Action action, SandboxTenant resource) {
+                            switch (action) {
+                                case ADDED:
+                                    sandboxProvisioner.processTenants();
+                                    break;
+                                case DELETED:
+                                case MODIFIED:
+                                    break;
+                                case ERROR:
+                                    log.error("Error event in watch");
+                                    break;
+                            }
+                        }
+
+                        @Override
+                        public void onClose(KubernetesClientException cause) {
+                            if (cause != null) {
+                                log.warn("Watch closed with error", cause);
+                            } else {
+                                log.info("Watch closed");
+                            }
+                            watch = null;
+                        }
+                    });
+        }
+    }
 
     /*
-    TODO: Look into why the informers are not running/watching
+    TODO: Cannot use informers due to bug in kubernetes-client
     void onStartup(@Observes StartupEvent ev) {
         log.info("Startup operator!");
         SharedIndexInformer<SandboxTenant> informer = kubernetesClient.informers().sharedIndexInformerForCustomResource(CustomResources.getSandboxCrdContext(), SandboxTenant.class, SandboxTenantList.class, TimeUnit.MINUTES.toMillis(1));

@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @ApplicationScoped
 public class SandboxProvisioner {
     private static final Logger log = LoggerFactory.getLogger(SandboxProvisioner.class);
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
 
     @Inject
     KubernetesClient kubernetesClient;
@@ -33,14 +33,13 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "300s")
     Duration expirationTime;
 
-    @Scheduled(every = "1m")
-    public void processTenants() {
+    @Scheduled(every = "10m")
+    public synchronized void processTenants() {
 
-        // TODO: Use SandboxTenantCache instead
         MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
-        List<SandboxTenant> cache = op.list().getItems();
 
-        List<SandboxTenant> tenantsByCreationTime = cache.stream()
+        // Order tenants by creation time so that we provision the oldest one first
+        List<SandboxTenant> tenantsByCreationTime = op.inAnyNamespace().list().getItems().stream()
                 .sorted((a, b) -> {
                     LocalDateTime dateA = LocalDateTime.from(dateTimeFormatter.parse(a.getMetadata().getCreationTimestamp()));
                     LocalDateTime dateB = LocalDateTime.from(dateTimeFormatter.parse(b.getMetadata().getCreationTimestamp()));
@@ -49,6 +48,7 @@ public class SandboxProvisioner {
 
         log.info("Tenants by creation time {}", tenantsByCreationTime);
 
+        // Those already provisioned will be garbage-collected if they have expired
         List<SandboxTenant> provisionedTenants = tenantsByCreationTime.stream()
                 .filter(sandboxTenant -> sandboxTenant.getStatus() != null && sandboxTenant.getStatus().getProvisionTimestamp() != null)
                 .collect(Collectors.toList());
@@ -59,10 +59,13 @@ public class SandboxProvisioner {
 
         LocalDateTime now = LocalDateTime.now(ZoneId.of("UTC"));
         int numProvisioned = provisionedTenants.size();
+
+        // Provision new tenants as long as we have the capacity.
         while (numProvisioned < maxTenants && unProvisionedTenants.hasNext()) {
             SandboxTenant unprovisioned = unProvisionedTenants.next();
             provisionTenant(unprovisioned);
 
+            // Update tenant status with information
             SandboxTenantStatus status = new SandboxTenantStatus();
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
@@ -72,11 +75,12 @@ public class SandboxProvisioner {
             numProvisioned++;
         }
 
+        // Garbage collect expired tenants
         for (SandboxTenant sandboxTenant : provisionedTenants) {
             LocalDateTime expiration = LocalDateTime.from(dateTimeFormatter.parse(sandboxTenant.getStatus().getExpirationTimestamp()));
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
-                op.withName(sandboxTenant.getMetadata().getName()).delete();
+                op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             }
         }
     }

@@ -70,4 +70,15 @@ public class SandboxTenant implements HasMetadata {
     public void setStatus(SandboxTenantStatus status) {
         this.status = status;
     }
+
+    @Override
+    public String toString() {
+        return "SandboxTenant{" +
+                "apiVersion='" + apiVersion + '\'' +
+                ", kind='" + kind + '\'' +
+                ", metadata=" + metadata +
+                ", spec=" + spec +
+                ", status=" + status +
+                '}';
+    }
 }
