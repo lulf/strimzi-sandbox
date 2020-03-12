@@ -18,6 +18,7 @@ import io.sundr.builder.annotations.Inline;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class SandboxTenantStatus {
     private String provisionTimestamp;
+    private String expirationTimestamp;
 
     public String getProvisionTimestamp() {
         return provisionTimestamp;
@@ -27,4 +28,11 @@ public class SandboxTenantStatus {
         this.provisionTimestamp = provisionTimestamp;
     }
 
+    public String getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    public void setExpirationTimestamp(String expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
+    }
 }

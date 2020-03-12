@@ -61,8 +61,13 @@ public class TenantResource {
         tenant.setName(sandboxTenant.getMetadata().getName());
         tenant.setSubject(sandboxTenant.getSpec().getSubject());
         tenant.setCreationTimestamp(sandboxTenant.getMetadata().getCreationTimestamp());
-        if (sandboxTenant.getStatus() != null && sandboxTenant.getStatus().getProvisionTimestamp() != null) {
-            tenant.setProvisionTimestamp(sandboxTenant.getStatus().getProvisionTimestamp());
+        if (sandboxTenant.getStatus() != null) {
+            if (sandboxTenant.getStatus().getProvisionTimestamp() != null) {
+                tenant.setProvisionTimestamp(sandboxTenant.getStatus().getProvisionTimestamp());
+            }
+            if (sandboxTenant.getStatus().getExpirationTimestamp() != null) {
+                tenant.setExpirationTimestamp(sandboxTenant.getStatus().getExpirationTimestamp());
+            }
         }
         return tenant;
     }

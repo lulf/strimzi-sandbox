@@ -26,6 +26,8 @@ spec:
             properties:
               provisionTimestamp:
                 type: string
+              expirationTimestamp:
+                type: string
   scope: Cluster
   names:
     plural: sandboxtenants

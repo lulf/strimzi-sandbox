@@ -5,6 +5,7 @@ public class Tenant {
     private String subject;
     private String creationTimestamp;
     private String provisionTimestamp;
+    private String expirationTimestamp;
 
     public String getName() {
         return name;
@@ -36,5 +37,13 @@ public class Tenant {
 
     public void setSubject(String subject) {
         this.subject = subject;
+    }
+
+    public String getExpirationTimestamp() {
+        return expirationTimestamp;
+    }
+
+    public void setExpirationTimestamp(String expirationTimestamp) {
+        this.expirationTimestamp = expirationTimestamp;
     }
 }

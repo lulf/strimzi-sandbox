@@ -30,6 +30,7 @@ class Dashboard extends Component {
                         return response.json();
                     }).then((data) => {
                         state.tenant = data;
+                        console.log("Data: " + JSON.stringify(data));
                         self.setState(state);
                     }).catch(function () {
                         self.setState(state);
@@ -52,9 +53,10 @@ class Dashboard extends Component {
                     var creationDateStr = creationDate.toLocaleString();
                     if (this.state.tenant.provisionTimestamp !== undefined) {
                         var provisionTimestamp = Date.parse(this.state.tenant.provisionTimestamp);
+                        var expirationTimestamp = Date.parse(this.state.tenant.expirationTimestamp);
+                        console.log("Expire timestamp: " + expirationTimestamp);
                         var provisionDate = new Date(provisionTimestamp);
                         var provisionDateStr = provisionDate.toLocaleString();
-                        var expirationTimestamp = provisionTimestamp + (7 * 24 * 60 * 60 * 1000);
                         var now = Date.now();
                         var timeUntilDeletion = (expirationTimestamp - now) / 1000;
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));

@@ -1,7 +1,6 @@
 package io.enmasse.sandbox.operator;
 
 import io.enmasse.sandbox.model.*;
-import io.fabric8.kubernetes.api.model.rbac.RoleBinding;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -13,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -67,6 +65,7 @@ public class SandboxProvisioner {
 
             SandboxTenantStatus status = new SandboxTenantStatus();
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
+            status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 
@@ -74,9 +73,8 @@ public class SandboxProvisioner {
         }
 
         for (SandboxTenant sandboxTenant : provisionedTenants) {
-            LocalDateTime expired = LocalDateTime.from(dateTimeFormatter.parse(sandboxTenant.getStatus().getProvisionTimestamp()))
-                    .plus(expirationTime);
-            if (expired.isBefore(now)) {
+            LocalDateTime expiration = LocalDateTime.from(dateTimeFormatter.parse(sandboxTenant.getStatus().getExpirationTimestamp()));
+            if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
                 op.withName(sandboxTenant.getMetadata().getName()).delete();
             }
@@ -100,7 +98,7 @@ public class SandboxProvisioner {
                 .done();
 
         String roleName = "sandbox-tenant";
-        kubernetesClient.rbac().roleBindings().inNamespace(obj.getMetadata().getName()).withName(roleName).edit()
+        kubernetesClient.rbac().roleBindings().inNamespace(obj.getMetadata().getName()).withName(roleName).createOrReplaceWithNew()
                 .editOrNewMetadata()
                 .withName(roleName)
                 .withNamespace(obj.getMetadata().getName())
