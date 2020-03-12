@@ -7,10 +7,12 @@ import io.enmasse.sandbox.model.SandboxTenantList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
+import io.quarkus.runtime.StartupEvent;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 
+import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -37,6 +39,7 @@ public class TenantResource {
                 .withName(tenant.getName())
                 .endMetadata()
                 .editOrNewSpec()
+                .withSubject(tenant.getSubject())
                 .endSpec()
                 .done();
     }
@@ -56,9 +59,10 @@ public class TenantResource {
         }
         Tenant tenant = new Tenant();
         tenant.setName(sandboxTenant.getMetadata().getName());
+        tenant.setSubject(sandboxTenant.getSpec().getSubject());
         tenant.setCreationTimestamp(sandboxTenant.getMetadata().getCreationTimestamp());
-        if (sandboxTenant.getSpec() != null && sandboxTenant.getSpec().getProvisionTimestamp() != null) {
-            tenant.setProvisionTimestamp(sandboxTenant.getSpec().getProvisionTimestamp());
+        if (sandboxTenant.getStatus() != null && sandboxTenant.getStatus().getProvisionTimestamp() != null) {
+            tenant.setProvisionTimestamp(sandboxTenant.getStatus().getProvisionTimestamp());
         }
         return tenant;
     }

@@ -2,6 +2,7 @@ package io.enmasse.sandbox.api;
 
 public class Tenant {
     private String name;
+    private String subject;
     private String creationTimestamp;
     private String provisionTimestamp;
 
@@ -27,5 +28,13 @@ public class Tenant {
 
     public void setProvisionTimestamp(String provisionTimestamp) {
         this.provisionTimestamp = provisionTimestamp;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 }

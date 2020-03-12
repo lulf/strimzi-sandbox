@@ -30,6 +30,7 @@ public class SandboxTenant implements HasMetadata {
     private ObjectMeta metadata = new ObjectMeta();
 
     private SandboxTenantSpec spec;
+    private SandboxTenantStatus status;
 
     public ObjectMeta getMetadata() {
         return metadata;
@@ -60,5 +61,13 @@ public class SandboxTenant implements HasMetadata {
 
     public void setSpec(SandboxTenantSpec spec) {
         this.spec = spec;
+    }
+
+    public SandboxTenantStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(SandboxTenantStatus status) {
+        this.status = status;
     }
 }

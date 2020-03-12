@@ -2,6 +2,8 @@
 set -e
 set -o pipefail
 
+# Stolen from https://github.com/mrbobbytables/oidckube
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 [[ ! -f "$DIR/config" ]] && cp "$DIR/config.example" "$DIR/config" 
 # shellcheck source=config
@@ -36,6 +38,7 @@ init_pki() {
   sed -e "s|__KEYCLOAK_ADDRESS__|$KEYCLOAK_ADDRESS|g" \
     "$TEMPLATE_DIR/keycloak.json.tmplt" > "$PKI_PROFILE_DIR/keycloak.json"
 
+  mkdir -p $PKI_DIR
   cfssl gencert -initca "$PKI_PROFILE_DIR/ca-csr.json" | cfssljson -bare "$PKI_DIR/keycloak-ca" -
   cfssl gencert \
     -ca="$PKI_DIR/keycloak-ca.pem" \
@@ -53,23 +56,20 @@ init_minikube() {
   init_keycloak
   local instance_ip
   instance_ip="$(minikube ip)"
-  while [ "$(kubectl get statefulset keycloak --template='{{.status.readyReplicas}}')" != "1" ]; do
-    echo "[$(date)][INFO] Waiting for Keycloak to become ready."
-    sleep 10
-  done
-  echo "[$(date)][INFO] Keycloak Deployed."
   echo "[$(date)][INFO] Add entry in /etc/hosts file before starting."
   echo "[$(date)][INFO] $instance_ip  $KEYCLOAK_ADDRESS"
 }
 
 inject_keycloak_certs() {
+  mkdir -p $PKI_DIR
   tar -c -C "$PKI_DIR" keycloak-ca.pem | ssh -t -q -o StrictHostKeyChecking=no \
     -i "$(minikube ssh-key)" "docker@$(minikube ip)" 'sudo tar -x --no-same-owner -C /var/lib/minikube/certs'
 
 }
 
-init_infra () {
-  kubectl create secret tls keycloak-cert --cert="$PKI_DIR/keycloak.pem" --key="$PKI_DIR/keycloak-key.pem"
+init_keycloak () {
+  kubectl create namespace keycloak
+  kubectl create secret tls -n keycloak keycloak-cert --cert="$PKI_DIR/keycloak.pem" --key="$PKI_DIR/keycloak-key.pem"
 }
 
 start_minikube() {

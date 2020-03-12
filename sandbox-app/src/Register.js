@@ -18,6 +18,7 @@ class Register extends Component {
             if (authenticated) {
                 var token = keycloak.token;
                 keycloak.loadUserProfile().then(function (profile) {
+                    console.log("Profile: " + JSON.stringify(profile));
                     fetch('http://localhost:8080/api/tenants', {
                         crossDomain: true,
                         method: 'POST',
@@ -27,7 +28,8 @@ class Register extends Component {
                             'Authorization': "Bearer " + token,
                         },
                         body: JSON.stringify({
-                            name: profile.username
+                            name: profile.username,
+                            subject: profile.email,
                         })
                     }).then((response) => {
                         if (response.ok || response.status === 409) {
