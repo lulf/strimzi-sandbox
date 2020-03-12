@@ -61,5 +61,19 @@ keytool -trustcacerts -keystore /etc/pki/java/cacerts -storepass changeit -alias
 
 Edit the sandbox-api/src/main/resources/application.properties and set the server url and oidc properties
 
-## Configure sandbox-app with oidc credentials
+## Configure nginx-ingress-controller to allow passthrough
 
+Edit the `nginx-ingress-controller` deployment in the `kube-system` namespace and add the command
+line argument `--enable-ssl-passthrough`.
+
+## Create the secret with oidc credentials
+
+---
+kubectl create secret generic oidc-secret --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
+---
+
+## Install enmasse
+
+---
+kubectl apply -n enmasse-infra deploy/enmasse
+---

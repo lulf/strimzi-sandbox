@@ -67,7 +67,7 @@ class Dashboard extends Component {
                                 <p>Logged in as {this.state.tenant.name}</p>
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
-                                <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                <p>Console: <a href="https://enmasse.devlocal">https://enmasse.devlocal</a></p>
                                 <NavLink to="/">Back</NavLink>
                             </div>
                         );

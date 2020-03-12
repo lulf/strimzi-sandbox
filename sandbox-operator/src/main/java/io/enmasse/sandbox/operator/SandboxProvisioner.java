@@ -91,11 +91,13 @@ public class SandboxProvisioner {
                 .withApiVersion(obj.getApiVersion())
                 .withKind(obj.getKind())
                 .withUid(obj.getMetadata().getUid())
+                .withBlockOwnerDeletion(true)
                 .withController(true)
                 .withName(obj.getMetadata().getName())
                 .endOwnerReference()
                 .endMetadata()
                 .done();
+
 
         String roleName = "sandbox-tenant";
         kubernetesClient.rbac().roleBindings().inNamespace(obj.getMetadata().getName()).withName(roleName).createOrReplaceWithNew()
@@ -111,9 +113,57 @@ public class SandboxProvisioner {
                 .addNewSubject()
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
-                .withName(obj.getSpec().getSubject())
+                .withName("oidc:"+obj.getSpec().getSubject())
                 .withNamespace(obj.getMetadata().getName())
                 .endSubject()
                 .done();
+
+        String clusterRoleName = String.format("%s.%s", roleName, obj.getMetadata().getUid());
+        kubernetesClient.rbac().clusterRoles().withName(clusterRoleName).createOrReplaceWithNew()
+                .editOrNewMetadata()
+                .withName(clusterRoleName)
+                .addNewOwnerReference()
+                .withApiVersion(obj.getApiVersion())
+                .withKind(obj.getKind())
+                .withUid(obj.getMetadata().getUid())
+                .withController(true)
+                .withBlockOwnerDeletion(true)
+                .withName(obj.getMetadata().getName())
+                .endOwnerReference()
+                .endMetadata()
+                .addNewRule()
+                .withApiGroups("")
+                .withResources("namespaces")
+                .withResourceNames(obj.getMetadata().getName())
+                .withVerbs("get")
+                .endRule()
+                .done();
+
+        String clusterRoleBindingName = clusterRoleName;
+        kubernetesClient.rbac().clusterRoleBindings().withName(clusterRoleBindingName).createOrReplaceWithNew()
+                .editOrNewMetadata()
+                .withName(clusterRoleBindingName)
+                .addNewOwnerReference()
+                .withApiVersion(obj.getApiVersion())
+                .withKind(obj.getKind())
+                .withUid(obj.getMetadata().getUid())
+                .withController(true)
+                .withBlockOwnerDeletion(true)
+                .withName(obj.getMetadata().getName())
+                .endOwnerReference()
+                .endMetadata()
+                .editOrNewRoleRef()
+                .withApiGroup("rbac.authorization.k8s.io")
+                .withKind("ClusterRole")
+                .withName(clusterRoleName)
+                .endRoleRef()
+                .addNewSubject()
+                .withApiGroup("rbac.authorization.k8s.io")
+                .withKind("User")
+                .withName("oidc:"+obj.getSpec().getSubject())
+                .withNamespace(obj.getMetadata().getName())
+                .endSubject()
+                .done();
+
     }
 }

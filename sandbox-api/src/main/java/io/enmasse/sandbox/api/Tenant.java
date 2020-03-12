@@ -6,6 +6,8 @@ public class Tenant {
     private String creationTimestamp;
     private String provisionTimestamp;
     private String expirationTimestamp;
+    private String consoleUrl;
+    private String messagingUrl;
 
     public String getName() {
         return name;
@@ -45,5 +47,21 @@ public class Tenant {
 
     public void setExpirationTimestamp(String expirationTimestamp) {
         this.expirationTimestamp = expirationTimestamp;
+    }
+
+    public String getConsoleUrl() {
+        return consoleUrl;
+    }
+
+    public void setConsoleUrl(String consoleUrl) {
+        this.consoleUrl = consoleUrl;
+    }
+
+    public String getMessagingUrl() {
+        return messagingUrl;
+    }
+
+    public void setMessagingUrl(String messagingUrl) {
+        this.messagingUrl = messagingUrl;
     }
 }

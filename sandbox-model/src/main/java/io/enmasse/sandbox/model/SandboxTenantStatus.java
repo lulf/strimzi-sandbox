@@ -19,6 +19,7 @@ import io.sundr.builder.annotations.Inline;
 public class SandboxTenantStatus {
     private String provisionTimestamp;
     private String expirationTimestamp;
+    private String consoleUrl;
 
     public String getProvisionTimestamp() {
         return provisionTimestamp;
@@ -34,5 +35,13 @@ public class SandboxTenantStatus {
 
     public void setExpirationTimestamp(String expirationTimestamp) {
         this.expirationTimestamp = expirationTimestamp;
+    }
+
+    public String getConsoleUrl() {
+        return consoleUrl;
+    }
+
+    public void setConsoleUrl(String consoleUrl) {
+        this.consoleUrl = consoleUrl;
     }
 }

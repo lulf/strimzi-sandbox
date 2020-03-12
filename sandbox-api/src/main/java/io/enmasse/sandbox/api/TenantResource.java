@@ -7,12 +7,10 @@ import io.enmasse.sandbox.model.SandboxTenantList;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.quarkus.runtime.StartupEvent;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -67,6 +65,9 @@ public class TenantResource {
             }
             if (sandboxTenant.getStatus().getExpirationTimestamp() != null) {
                 tenant.setExpirationTimestamp(sandboxTenant.getStatus().getExpirationTimestamp());
+            }
+            if (sandboxTenant.getStatus().getConsoleUrl() != null) {
+                tenant.setConsoleUrl(sandboxTenant.getStatus().getConsoleUrl());
             }
         }
         return tenant;
