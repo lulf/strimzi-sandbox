@@ -10,11 +10,19 @@ This guide documents how to set up the enmasse sandbox in a minikube environment
 
 This will configure minikube and generate the certificates for Keycloak.
 
+## Install enmasse
+
+* Download zip from https://github.com/EnMasseProject/enmasse/ or just use templates from master
+
+```
+kubectl create namespace enmasse-infra
+kubectl -n enmasse-infra apply -f enmasse-latest/install/bundles/enmasse
+```
+
 ## Deploy resources
 
 ```
 kubectl create namespace keycloak
-kubectl create namespace enmasse-infra
 kubectl apply -f ../deploy
 ```
 
@@ -80,6 +88,3 @@ line argument `--enable-ssl-passthrough`.
 kubectl create secret generic oidc-secret --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
 ```
 
-## Final steps
-
-* Install EnMasse from https://github.com/EnMasseProject/enmasse/
