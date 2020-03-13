@@ -40,6 +40,8 @@ public class SandboxOperator {
                                     sandboxProvisioner.processTenants();
                                     break;
                                 case DELETED:
+                                    sandboxProvisioner.processTenants();
+                                    break;
                                 case MODIFIED:
                                     break;
                                 case ERROR:

@@ -2,6 +2,7 @@ package io.enmasse.sandbox.operator;
 
 import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
+import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -91,11 +92,11 @@ public class SandboxProvisioner {
     private void provisionTenant(SandboxTenant obj) {
         log.info("Creating resources for tenant {}", obj.getMetadata().getName());
 
-        String uuidString = "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
+        String namespace = "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
 
         kubernetesClient.namespaces().createOrReplaceWithNew()
                 .editOrNewMetadata()
-                .withName(uuidString)
+                .withName(namespace)
                 .addNewOwnerReference()
                 .withApiVersion(obj.getApiVersion())
                 .withKind(obj.getKind())
@@ -109,10 +110,10 @@ public class SandboxProvisioner {
 
 
         String roleName = "sandbox-tenant";
-        kubernetesClient.rbac().roleBindings().inNamespace(uuidString).withName(roleName).createOrReplaceWithNew()
+        kubernetesClient.rbac().roleBindings().inNamespace(namespace).withName(roleName).createOrReplaceWithNew()
                 .editOrNewMetadata()
                 .withName(roleName)
-                .withNamespace(uuidString)
+                .withNamespace(namespace)
                 .endMetadata()
                 .editOrNewRoleRef()
                 .withApiGroup("rbac.authorization.k8s.io")
@@ -123,7 +124,7 @@ public class SandboxProvisioner {
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
                 .withName("oidc:"+obj.getSpec().getSubject())
-                .withNamespace(uuidString)
+                .withNamespace(namespace)
                 .endSubject()
                 .done();
 
@@ -143,7 +144,7 @@ public class SandboxProvisioner {
                 .addNewRule()
                 .withApiGroups("")
                 .withResources("namespaces")
-                .withResourceNames(uuidString)
+                .withResourceNames(namespace)
                 .withVerbs("get")
                 .endRule()
                 .done();
@@ -170,9 +171,18 @@ public class SandboxProvisioner {
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
                 .withName("oidc:"+obj.getSpec().getSubject())
-                .withNamespace(uuidString)
+                .withNamespace(namespace)
                 .endSubject()
                 .done();
 
+        kubernetesClient.resourceQuotas().inNamespace(namespace).withName("addressspace-quota").createOrReplaceWithNew()
+                .editOrNewMetadata()
+                .withName("addressspace-quota")
+                .withNamespace(namespace)
+                .endMetadata()
+                .editOrNewSpec()
+                .addToHard("count/addressspaces.enmasse.io", new Quantity("1"))
+                .endSpec()
+                .done();
     }
 }
