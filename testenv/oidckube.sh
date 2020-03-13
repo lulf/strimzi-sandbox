@@ -82,6 +82,7 @@ start_minikube() {
     --extra-config=apiserver.oidc-groups-claim=groups \
     --extra-config=apiserver.oidc-username-prefix="oidc:" \
     --extra-config=apiserver.oidc-groups-prefix="oidc:" \
+    --extra-config=apiserver.enable-admission-plugins=ResourceQuota \
     --extra-config=apiserver.oidc-ca-file=/var/lib/minikube/certs/keycloak-ca.pem
 
 }

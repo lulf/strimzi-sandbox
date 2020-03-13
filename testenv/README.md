@@ -4,21 +4,29 @@ This guide documents how to set up the enmasse sandbox in a minikube environment
 
 ## Initialize the minikube 
 
----
+```
 ./oidckube.sh init
----
+```
 
 This will configure minikube and generate the certificates for Keycloak.
+
+## Deploy resources
+
+```
+kubectl create namespace keycloak
+kubectl create namespace enmasse-infra
+kubectl apply -f ../deploy
+```
 
 ## Configure /etc/hosts
 
 Run the following commands to add entries to /etc/hosts
 
----
+```
 IP=$(minikube ip)
 sudo sh -c "echo '${IP} keycloak.devlocal' >> /etc/hosts"
 sudo sh -c "echo '${IP} enmasse.devlocal' >> /etc/hosts"
----
+```
 
 ## Create realm and clients in keycloak
 
@@ -34,10 +42,10 @@ sudo sh -c "echo '${IP} enmasse.devlocal' >> /etc/hosts"
 
 ## Restart minikube
 
----
+```
 ./oidckube.sh stop
 ./oidckube.sh start
----
+```
 
 ## Setup GitHub identity provider
 
@@ -52,10 +60,10 @@ Configure 'github' as the default identity provider.
 
 This step is required because Quarkus does not support changing the truststore path.
 
----
+```
 openssl x509 -outform der -in pki/keycloak-ca.pem -out pki/keycloak-ca.der
 keytool -trustcacerts -keystore /etc/pki/java/cacerts -storepass changeit -alias Keycloak -import -file pki/keycloak-ca.der
----
+```
 
 ## Configure sandbox-api resources with oidc credentials
 
@@ -68,12 +76,10 @@ line argument `--enable-ssl-passthrough`.
 
 ## Create the secret with oidc credentials
 
----
+```
 kubectl create secret generic oidc-secret --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
----
+```
 
-## Install enmasse
+## Final steps
 
----
-kubectl apply -n enmasse-infra deploy/enmasse
----
+* Install EnMasse from https://github.com/EnMasseProject/enmasse/

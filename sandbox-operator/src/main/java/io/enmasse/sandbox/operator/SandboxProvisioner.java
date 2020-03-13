@@ -1,5 +1,6 @@
 package io.enmasse.sandbox.operator;
 
+import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -11,12 +12,14 @@ import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -30,7 +33,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "2")
     int maxTenants;
 
-    @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "300s")
+    @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "3h")
     Duration expirationTime;
 
     @Scheduled(every = "3m")
@@ -88,9 +91,11 @@ public class SandboxProvisioner {
     private void provisionTenant(SandboxTenant obj) {
         log.info("Creating resources for tenant {}", obj.getMetadata().getName());
 
+        String uuidString = "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
+
         kubernetesClient.namespaces().createOrReplaceWithNew()
                 .editOrNewMetadata()
-                .withName(obj.getMetadata().getName())
+                .withName(uuidString)
                 .addNewOwnerReference()
                 .withApiVersion(obj.getApiVersion())
                 .withKind(obj.getKind())
@@ -104,10 +109,10 @@ public class SandboxProvisioner {
 
 
         String roleName = "sandbox-tenant";
-        kubernetesClient.rbac().roleBindings().inNamespace(obj.getMetadata().getName()).withName(roleName).createOrReplaceWithNew()
+        kubernetesClient.rbac().roleBindings().inNamespace(uuidString).withName(roleName).createOrReplaceWithNew()
                 .editOrNewMetadata()
                 .withName(roleName)
-                .withNamespace(obj.getMetadata().getName())
+                .withNamespace(uuidString)
                 .endMetadata()
                 .editOrNewRoleRef()
                 .withApiGroup("rbac.authorization.k8s.io")
@@ -118,7 +123,7 @@ public class SandboxProvisioner {
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
                 .withName("oidc:"+obj.getSpec().getSubject())
-                .withNamespace(obj.getMetadata().getName())
+                .withNamespace(uuidString)
                 .endSubject()
                 .done();
 
@@ -138,7 +143,7 @@ public class SandboxProvisioner {
                 .addNewRule()
                 .withApiGroups("")
                 .withResources("namespaces")
-                .withResourceNames(obj.getMetadata().getName())
+                .withResourceNames(uuidString)
                 .withVerbs("get")
                 .endRule()
                 .done();
@@ -165,7 +170,7 @@ public class SandboxProvisioner {
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
                 .withName("oidc:"+obj.getSpec().getSubject())
-                .withNamespace(obj.getMetadata().getName())
+                .withNamespace(uuidString)
                 .endSubject()
                 .done();
 

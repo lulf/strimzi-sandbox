@@ -8,16 +8,14 @@ function Nav() {
             <BrowserRouter>
             <Switch>
             <Route exact path="/">
-            <div className="App">
+            <div className="NavApp">
             <nav>
-            <ul>
-            <li>
-            <NavLink to="/register">Register</NavLink>
-            </li>
-            <li>
-            <NavLink to="/dashboard">Dashboard</NavLink>
-            </li>
-            </ul>
+            <NavLink className="largeLinkGithub" to="/register">Register with GitHub ></NavLink>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            <NavLink className="largeLink" to="/dashboard">Dashboard ></NavLink>
             </nav>
             </div>
             </Route>

@@ -26,11 +26,9 @@ class Dashboard extends Component {
                             'Authorization': "Bearer " + token,
                         },
                     }).then((response) => {
-                        console.log("Response: " + response.status);
                         return response.json();
                     }).then((data) => {
                         state.tenant = data;
-                        console.log("Data: " + JSON.stringify(data));
                         self.setState(state);
                     }).catch(function () {
                         self.setState(state);
@@ -54,7 +52,6 @@ class Dashboard extends Component {
                     if (this.state.tenant.provisionTimestamp !== undefined) {
                         var provisionTimestamp = Date.parse(this.state.tenant.provisionTimestamp);
                         var expirationTimestamp = Date.parse(this.state.tenant.expirationTimestamp);
-                        console.log("Expire timestamp: " + expirationTimestamp);
                         var provisionDate = new Date(provisionTimestamp);
                         var provisionDateStr = provisionDate.toLocaleString();
                         var now = Date.now();
@@ -62,13 +59,15 @@ class Dashboard extends Component {
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
                         return (
-                                <div className="App">
+                            <div className="App">
                                 <h3>Status</h3>
                                 <p>Logged in as {this.state.tenant.name}</p>
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
                                 <p>Console: <a href="https://enmasse.devlocal">https://enmasse.devlocal</a></p>
-                                <NavLink to="/">Back</NavLink>
+                                <div className="InNavApp">
+                                <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                                </div>
                             </div>
                         );
                         
@@ -79,7 +78,9 @@ class Dashboard extends Component {
                                 <p>Logged in as {this.state.tenant.name}</p>
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Environment not yet provisioned</p>
-                                <NavLink to="/">Back</NavLink>
+                                <div className="InNavApp">
+                                <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                                </div>
                                 </div>
                         );
                     }
@@ -87,7 +88,9 @@ class Dashboard extends Component {
                     return (
                             <div className="App">
                             <h3>Not registered</h3>
-                            <NavLink to="/">Back</NavLink>
+                            <div className="InNavApp">
+                            <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                            </div>
                             </div>
                     );
                 }
@@ -95,7 +98,9 @@ class Dashboard extends Component {
                 return (
                         <div className="App">
                         <h3>Account not registered</h3>
-                        <NavLink to="/">Back</NavLink>
+                        <div className="InNavApp">
+                        <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                        </div>
                         </div>
                 );
             }
