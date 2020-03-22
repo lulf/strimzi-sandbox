@@ -1,6 +1,6 @@
 sudo: required
 language: java
-dist: xenial
+dist: bionic
 notifications:
   email: false
 cache:
