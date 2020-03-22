@@ -18,5 +18,8 @@ spec:
       serviceAccountName: sandbox-app
       containers:
       - name: app
+        ports:
+          - name: http
+            containerPort: 8080
         image: quay.io/enmasse/sandbox-app:latest
         imagePullPolicy: Always

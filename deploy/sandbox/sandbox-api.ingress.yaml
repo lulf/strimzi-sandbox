@@ -1,25 +1,21 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: keycloak
-  namespace: keycloak
-  labels:
-    app: keycloak
-    component: keycloak
+  name: sandbox-api
+  namespace: sandbox
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    kubernetes.io/tls-acme: "true" 
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: auth.sandbox.enmasse.io 
+  - host: api.sandbox.enmasse.io 
     http:
       paths:
       - backend:
-          serviceName: keycloak
+          serviceName: sandbox-api
           servicePort: http
         path: /
   tls:
   - hosts:
-      - auth.sandbox.enmasse.io
-    secretName: keycloak-cert
+      - api.sandbox.enmasse.io
+    secretName: api-cert

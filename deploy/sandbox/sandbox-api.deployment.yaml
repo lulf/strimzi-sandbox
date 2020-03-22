@@ -19,6 +19,10 @@ spec:
       containers:
       - name: api
         image: quay.io/enmasse/sandbox-api:latest
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: 8080
         env:
         - name: QUARKUS_OIDC_AUTH_SERVER_URL
           valueFrom:
