@@ -1,0 +1,17 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: sandbox.enmasse.io:sandbox-operator
+rules:
+  - apiGroups: [ "rbac.authorization.k8s.io" ]
+    resources: [ "clusterroles", "clusterrolebindings", "rolebindings" ]
+    verbs: [ "create", "get", "update", "list", "watch" ]
+  - apiGroups: [ "" ]
+    resources: [ "namespaces" ]
+    verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
+  - apiGroups: [ "sandbox.enmasse.io" ]
+    resources: [ "sandboxtenants" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "sandbox.enmasse.io" ]
+    resources: [ "sandboxtenants/status" ]
+    verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]

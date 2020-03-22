@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sandbox-api
+  namespace: sandbox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sandbox
+      component: sandbox-api
+  template:
+    metadata:
+      labels:
+        app: sandbox
+        component: sandbox-api
+    spec:
+      serviceAccountName: sandbox-api
+      containers:
+      - name: api
+        image: quay.io/enmasse/sandbox-api:latest
+        imagePullPolicy: Always
