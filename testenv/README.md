@@ -17,13 +17,14 @@ This will configure minikube and generate the certificates for Keycloak.
 ```
 kubectl create namespace enmasse-infra
 kubectl -n enmasse-infra apply -f enmasse-latest/install/bundles/enmasse
+kubectl apply -f ../deploy/enmasse
 ```
 
 ## Deploy resources
 
 ```
 kubectl create namespace keycloak
-kubectl apply -f ../deploy
+kubectl apply -f ../deploy/keycloak
 ```
 
 ## Configure /etc/hosts

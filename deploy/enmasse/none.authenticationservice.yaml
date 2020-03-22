@@ -1,0 +1,8 @@
+apiVersion: admin.enmasse.io/v1beta1
+kind: AuthenticationService
+metadata:
+  name: none
+  namespace: enmasse-infra
+spec:
+  type: none
+

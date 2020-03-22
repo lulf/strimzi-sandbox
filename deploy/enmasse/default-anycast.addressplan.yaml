@@ -1,0 +1,12 @@
+apiVersion: admin.enmasse.io/v1beta2
+kind: AddressPlan
+metadata:
+  name: default-anycast
+  namespace: enmasse-infra
+spec:
+  displayName: Anycast
+  shortDescription: Volatile anycast address
+  resources:
+    router: 0.1
+  addressType: anycast
+

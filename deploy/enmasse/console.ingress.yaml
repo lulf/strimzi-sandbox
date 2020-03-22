@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: console
+  namespace: enmasse-infra
+  labels:
+    app: enmasse
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  rules:
+  - host: enmasse.devlocal
+    http:
+      paths:
+      - backend:
+          serviceName: console
+          servicePort: https
+        path: /
+  tls:
+  - hosts:
+      - enmasse.devlocal

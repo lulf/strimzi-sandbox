@@ -1,0 +1,12 @@
+apiVersion: admin.enmasse.io/v1beta2
+kind: AddressPlan
+metadata:
+  name: default-multicast
+  namespace: enmasse-infra
+spec:
+  displayName: Multicast
+  shortDescription: Volatile multicast address
+  resources:
+    router: 0.2
+  addressType: multicast
+
