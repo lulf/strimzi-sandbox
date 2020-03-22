@@ -3,6 +3,9 @@ language: java
 dist: xenial
 notifications:
   email: false
+cache:
+  directories:
+  - $HOME/.m2
 jdk:
 - openjdk11
 services:
