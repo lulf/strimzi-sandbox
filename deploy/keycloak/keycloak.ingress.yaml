@@ -6,9 +6,12 @@ metadata:
   labels:
     app: keycloak
     component: keycloak
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-staging"
 spec:
   rules:
-  - host: keycloak.devlocal
+  - host: auth.sandbox.enmasse.io 
     http:
       paths:
       - backend:
@@ -17,5 +20,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - keycloak.devlocal
+      - auth.sandbox.enmasse.io
     secretName: keycloak-cert
