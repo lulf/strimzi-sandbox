@@ -34,7 +34,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "2")
     int maxTenants;
 
-    @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "3h")
+    @ConfigProperty(name = "io.enmasse.sandbox.expirationTime", defaultValue = "3h")
     Duration expirationTime;
 
     @Scheduled(every = "3m")
