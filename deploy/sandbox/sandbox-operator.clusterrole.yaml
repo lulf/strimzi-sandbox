@@ -7,7 +7,7 @@ rules:
     resources: [ "clusterroles", "clusterrolebindings", "rolebindings" ]
     verbs: [ "create", "get", "update", "list", "watch" ]
   - apiGroups: [ "" ]
-    resources: [ "namespaces" ]
+    resources: [ "namespaces", "resourcequotas" ]
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
   - apiGroups: [ "sandbox.enmasse.io" ]
     resources: [ "sandboxtenants" ]
