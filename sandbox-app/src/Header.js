@@ -6,9 +6,11 @@ class Header extends Component {
   render() {
       return (
               <div>
-        <header className="App-header">
+        <div className="App">
+        <header>
             <img src={logo} className="App-logo" alt="logo" />
         </header>
+              </div>
         <div className="App">
             <p>
                 EnMasse Sandbox is a public service for developers who want to try a managed EnMasse service without having to setting up Kubernetes.
