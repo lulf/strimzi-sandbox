@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-oidc-proxy
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  creationTimestamp: null
+  name: kube-oidc-proxy
+  namespace: kube-oidc-proxy
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: kube-oidc-proxy
+  name: kube-oidc-proxy
+  namespace: kube-oidc-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-oidc-proxy
+  template:
+    metadata:
+      labels:
+        app: kube-oidc-proxy
+    spec:
+      serviceAccountName: kube-oidc-proxy
+      containers:
+      - image: quay.io/jetstack/kube-oidc-proxy:v0.2.0
+        ports:
+        - containerPort: 443
+        - containerPort: 8080
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        name: kube-oidc-proxy
+        command: ["kube-oidc-proxy"]
+        args:
+          - "--secure-port=443"
+          - "--tls-cert-file=/etc/oidc/tls/crt.pem"
+          - "--tls-private-key-file=/etc/oidc/tls/key.pem"
+          - "--oidc-client-id=$(OIDC_CLIENT_ID)"
+          - "--oidc-issuer-url=$(OIDC_ISSUER_URL)"
+          - "--oidc-username-claim=$(OIDC_USERNAME_CLAIM)"
+        env:
+        - name: OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: kube-oidc-proxy-config
+              key: oidc.client-id
+        - name: OIDC_ISSUER_URL
+          valueFrom:
+            secretKeyRef:
+              name: kube-oidc-proxy-config
+              key: oidc.issuer-url
+        - name: OIDC_USERNAME_CLAIM
+          valueFrom:
+            secretKeyRef:
+              name: kube-oidc-proxy-config
+              key: oidc.username-claim
+        volumeMounts:
+          - name: kube-oidc-proxy-tls
+            mountPath: /etc/oidc/tls
+            readOnly: true
+      volumes:
+        - name: kube-oidc-proxy-tls
+          secret:
+            secretName: kube-oidc-proxy-tls
+            items:
+            - key: tls.crt
+              path: crt.pem
+            - key: tls.key
+              path: key.pem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: kube-oidc-proxy
+  name: kube-oidc-proxy
+  namespace: kube-oidc-proxy
+spec:
+  ports:
+  - port: 443
+    protocol: TCP
+    targetPort: 443
+  type: ClusterIP
+  selector:
+    app: kube-oidc-proxy
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kube-api
+  namespace: kube-oidc-proxy
+  labels:
+    app: kube-oidc-proxy
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+spec:
+  rules:
+  - host: kube-api.sandbox.enmasse.io 
+    http:
+      paths:
+      - backend:
+          serviceName: kube-oidc-proxy
+          servicePort: 443
+        path: /
+  tls:
+  - hosts:
+      - kube-api.sandbox.enmasse.io
+    secretName: kube-oidc-proxy-tls
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kube-oidc-proxy
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-oidc-proxy
+subjects:
+- kind: ServiceAccount
+  name: kube-oidc-proxy
+  namespace: kube-oidc-proxy
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: kube-oidc-proxy
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - "users"
+  - "groups"
+  - "serviceaccounts"
+  verbs:
+  - "impersonate"
+- apiGroups:
+  - "authentication.k8s.io"
+  resources:
+  - "userextras/scopes"
+  - "tokenreviews"
+  verbs:
+  - "create"
+  - "impersonate"
