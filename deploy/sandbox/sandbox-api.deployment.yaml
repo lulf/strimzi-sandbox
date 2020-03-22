@@ -39,4 +39,8 @@ spec:
             secretKeyRef:
               name: sandbox-oidc
               key: clientsecret
+        - name: QUARKUS_HTTP_CORS
+          value: "true"
+        - name: QUARKUS_HTTP_CORS_ORIGINS
+          value: "http://localhost:3000,https://sandbox.enmasse.io,https://api.sandbox.enmasse.io"
         imagePullPolicy: Always

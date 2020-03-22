@@ -15,3 +15,6 @@ rules:
   - apiGroups: [ "sandbox.enmasse.io" ]
     resources: [ "sandboxtenants/status" ]
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
+  - apiGroups: [ "enmasse.io" ]
+    resources: [ "addressspaces", "addresses" ]
+    verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
