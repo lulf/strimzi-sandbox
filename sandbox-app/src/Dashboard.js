@@ -17,7 +17,7 @@ class Dashboard extends Component {
             if (authenticated) {
                 var token = keycloak.token;
                 keycloak.loadUserProfile().then(function (profile) {
-                    fetch('http://localhost:8080/api/tenants/' + profile.username, {
+                    fetch('https://api.sandbox.enmasse.io/api/tenants/' + profile.username, {
                         crossDomain: true,
                         method: 'GET',
                         headers: {
@@ -64,7 +64,7 @@ class Dashboard extends Component {
                                 <p>Logged in as {this.state.tenant.name}</p>
                                 <p>Registered at {creationDateStr}</p>
                                 <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
-                                <p>Console: <a href="https://enmasse.devlocal">https://enmasse.devlocal</a></p>
+                                <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
                                 <div className="InNavApp">
                                 <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
                                 </div>

@@ -19,7 +19,7 @@ class Register extends Component {
                 var token = keycloak.token;
                 keycloak.loadUserProfile().then(function (profile) {
                     console.log("Profile: " + JSON.stringify(profile));
-                    fetch('http://localhost:8080/api/tenants', {
+                    fetch('https://api.sandbox.enmasse.io/api/tenants', {
                         crossDomain: true,
                         method: 'POST',
                         headers: {
