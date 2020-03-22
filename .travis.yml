@@ -1,0 +1,11 @@
+sudo: required
+language: java
+dist: xenial
+notifications:
+  email: false
+jdk:
+- openjdk11
+services:
+- docker
+script:
+- ".travis/build.sh"
