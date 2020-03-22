@@ -1,9 +1,9 @@
 .App {
   margin-left: 20%;
-  width: 25%;
 }
 
 .App-logo {
+  height: 40vmin;
   pointer-events: none;
 }
 
@@ -11,7 +11,7 @@
   display: flex;
   text-align: center;
   flex-direction: column;
-  align-items: left;
+  align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
   color: white;
