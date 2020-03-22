@@ -19,4 +19,20 @@ spec:
       containers:
       - name: api
         image: quay.io/enmasse/sandbox-api:latest
+        env:
+        - name: QUARKUS_OIDC_AUTH_SERVER_URL
+          valueFrom:
+            secretKeyRef:
+              name: sandbox-oidc
+              key: issuer
+        - name: QUARKUS_OIDC_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: sandbox-oidc
+              key: clientid
+        - name: QUARKUS_OIDC_CREDENTIALS_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: sandbox-oidc
+              key: clientsecret
         imagePullPolicy: Always
