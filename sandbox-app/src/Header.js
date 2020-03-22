@@ -11,7 +11,7 @@ class Header extends Component {
         </header>
         <div className="App">
             <p>
-                EnMasse Sandbox is a community service offering for developers who want to try EnMasse without setting up Kubernetes and installing Enmasse.
+                EnMasse Sandbox is a public service for developers who want to try a managed EnMasse service without having to setting up Kubernetes.
             </p>
             <p>
                 You can use a <a href="https://www.github.com">GitHub</a> account to register and get a free environment for a limited time period. Once expired, all data for the environment and account data will be deleted.
