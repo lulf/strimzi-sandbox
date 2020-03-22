@@ -76,14 +76,14 @@ start_minikube() {
   # VBoxManage modifyvm minikube --natdnshostresolver1 on
   minikube start \
     --extra-config=kubelet.serialize-image-pulls=false \
-    --extra-config=apiserver.oidc-issuer-url=https://$KEYCLOAK_ADDRESS/auth/realms/$KEYCLOAK_AUTH_REALM \
-    --extra-config=apiserver.oidc-client-id=$KEYCLOAK_CLIENT_ID \
-    --extra-config=apiserver.oidc-username-claim=email \
-    --extra-config=apiserver.oidc-groups-claim=groups \
-    --extra-config=apiserver.oidc-username-prefix="oidc:" \
-    --extra-config=apiserver.oidc-groups-prefix="oidc:" \
-    --extra-config=apiserver.enable-admission-plugins=ResourceQuota \
-    --extra-config=apiserver.oidc-ca-file=/var/lib/minikube/certs/keycloak-ca.pem
+    --extra-config=apiserver.enable-admission-plugins=ResourceQuota
+#    --extra-config=apiserver.oidc-issuer-url=https://$KEYCLOAK_ADDRESS/auth/realms/$KEYCLOAK_AUTH_REALM \
+#    --extra-config=apiserver.oidc-client-id=$KEYCLOAK_CLIENT_ID \
+#    --extra-config=apiserver.oidc-username-claim=email \
+#    --extra-config=apiserver.oidc-groups-claim=groups \
+#    --extra-config=apiserver.oidc-username-prefix="oidc:" \
+#    --extra-config=apiserver.oidc-groups-prefix="oidc:" \
+#    --extra-config=apiserver.oidc-ca-file=/var/lib/minikube/certs/keycloak-ca.pem
 
 }
 

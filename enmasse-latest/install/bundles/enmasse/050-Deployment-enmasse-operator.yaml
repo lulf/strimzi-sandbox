@@ -30,7 +30,7 @@ spec:
       serviceAccountName: enmasse-operator
       containers:
       - name: controller
-        image: quay.io/enmasse/controller-manager:latest
+        image: docker.io/lulf/controller-manager:latest
         imagePullPolicy: Always
         env:
         - name: POD_NAME

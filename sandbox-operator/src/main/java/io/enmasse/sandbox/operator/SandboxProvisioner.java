@@ -123,7 +123,8 @@ public class SandboxProvisioner {
                 .addNewSubject()
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
-                .withName("oidc:"+obj.getSpec().getSubject())
+                //.withName("oidc:"+obj.getSpec().getSubject())
+                .withName(obj.getSpec().getSubject())
                 .withNamespace(namespace)
                 .endSubject()
                 .done();
@@ -170,7 +171,8 @@ public class SandboxProvisioner {
                 .addNewSubject()
                 .withApiGroup("rbac.authorization.k8s.io")
                 .withKind("User")
-                .withName("oidc:"+obj.getSpec().getSubject())
+                //.withName("oidc:"+obj.getSpec().getSubject())
+                .withName(obj.getSpec().getSubject())
                 .withNamespace(namespace)
                 .endSubject()
                 .done();
