@@ -8,7 +8,6 @@ cache:
   - $HOME/.m2
 jdk:
 - openjdk11
-services:
-- docker
 script:
+- ".travis/setup.sh"
 - ".travis/build.sh"
