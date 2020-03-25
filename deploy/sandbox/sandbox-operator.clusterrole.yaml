@@ -11,7 +11,7 @@ rules:
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
   - apiGroups: [ "sandbox.enmasse.io" ]
     resources: [ "sandboxtenants" ]
-    verbs: [ "get", "list", "watch" ]
+    verbs: [ "get", "list", "watch", "delete" ]
   - apiGroups: [ "sandbox.enmasse.io" ]
     resources: [ "sandboxtenants/status" ]
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
