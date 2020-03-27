@@ -31,12 +31,6 @@
     <module>sandbox-operator</module>
     <module>sandbox-app</module>
   </modules>
-  <repositories>
-    <repository>
-      <id>jitpack.io</id>
-      <url>https://jitpack.io</url>
-    </repository>
-  </repositories>
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -45,11 +39,6 @@
         <version>${quarkus.platform.version}</version>
         <type>pom</type>
         <scope>import</scope>
-      </dependency>
-      <dependency>
-        <groupId>com.github.enmasseproject</groupId>
-        <artifactId>enmasse</artifactId>
-        <version>${enmasse.model.version}</version>
       </dependency>
       <dependency>
         <groupId>io.enmasse.sandbox</groupId>
