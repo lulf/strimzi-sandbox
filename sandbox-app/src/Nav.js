@@ -1,6 +1,7 @@
 import React from 'react';
 import Dashboard from './Dashboard.js';
 import Register from './Register.js';
+import TermsOfService from './TermsOfService.js';
 import { BrowserRouter, Route, NavLink, Switch } from 'react-router-dom';
 
 function Nav() {
@@ -8,9 +9,10 @@ function Nav() {
             <BrowserRouter>
             <Switch>
             <Route exact path="/">
+            <TermsOfService />
             <div className="NavApp">
             <nav>
-            <NavLink className="largeLinkGithub" to="/register">Register with GitHub ></NavLink>
+            <NavLink className="largeLinkBlack" to="/register">Register with GitHub ></NavLink>
             &nbsp;
             &nbsp;
             &nbsp;
