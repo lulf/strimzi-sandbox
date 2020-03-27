@@ -58,18 +58,36 @@ class Dashboard extends Component {
                         var timeUntilDeletion = (expirationTimestamp - now) / 1000;
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
-                        return (
-                            <div className="App">
-                                <h3>Status</h3>
-                                <p>Logged in as {this.state.tenant.name}</p>
-                                <p>Registered at {creationDateStr}</p>
-                                <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
-                                <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                <div className="InNavApp">
-                                <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                        if (this.state.tenant.messagingUrl !== undefined) {
+                            return (
+                                <div className="App">
+                                    <h3>Status</h3>
+                                    <p>Logged in as {this.state.tenant.name}</p>
+                                    <p>Registered at {creationDateStr}</p>
+                                    <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
+                                    <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                    <p>Messaging: No address space created</p>
+                                    <div className="InNavApp">
+                                    <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                                    </div>
                                 </div>
-                            </div>
-                        );
+                            );
+                        } else {
+                            var messagingUrl = this.state.tenant.messagingUrl;
+                            return (
+                                <div className="App">
+                                    <h3>Status</h3>
+                                    <p>Logged in as {this.state.tenant.name}</p>
+                                    <p>Registered at {creationDateStr}</p>
+                                    <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
+                                    <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                    <p>Messaging: {messagingUrl}</p>
+                                    <div className="InNavApp">
+                                    <NavLink className="largeLink" to="/">{'<'} Back</NavLink>
+                                    </div>
+                                </div>
+                            );
+                        }
                         
                     } else {
                         return (

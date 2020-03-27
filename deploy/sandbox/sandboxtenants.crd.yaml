@@ -30,6 +30,8 @@ spec:
                 type: string
               consoleUrl:
                 type: string
+              messagingUrl:
+                type: string
   scope: Cluster
   names:
     plural: sandboxtenants

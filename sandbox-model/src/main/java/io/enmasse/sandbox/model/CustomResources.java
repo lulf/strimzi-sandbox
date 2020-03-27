@@ -16,9 +16,12 @@ public class CustomResources {
             .withName("SandboxTenant")
             .build();
     private static final CustomResourceDefinition sandboxCrd = createCustomResource(sandboxCrdContext.getGroup(), sandboxCrdContext.getVersion(), sandboxCrdContext.getName());
+    private static final CustomResourceDefinition addressSpaceCrd = createCustomResource("enmasse.io", "v1beta1", "AddressSpace");
     static {
         KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenant", SandboxTenant.class);
         KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenantList", SandboxTenantList.class);
+        KubernetesDeserializer.registerCustomKind("enmasse.io/v1beta1", "AddressSpace", AddressSpace.class);
+        KubernetesDeserializer.registerCustomKind("enmasse.io/v1beta1", "AddressSpaceList", AddressSpaceList.class);
     }
 
     public static CustomResourceDefinitionContext getSandboxCrdContext() {
@@ -27,6 +30,10 @@ public class CustomResources {
 
     public static CustomResourceDefinition getSandboxCrd() {
         return sandboxCrd;
+    }
+
+    public static CustomResourceDefinition getAddressSpaceCrd() {
+        return addressSpaceCrd;
     }
 
     private static CustomResourceDefinition createCustomResource(final String group, final String version, final String kind) {

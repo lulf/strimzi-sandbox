@@ -20,6 +20,7 @@ public class SandboxTenantStatus {
     private String provisionTimestamp;
     private String expirationTimestamp;
     private String consoleUrl;
+    private String messagingUrl;
 
     public String getProvisionTimestamp() {
         return provisionTimestamp;
@@ -45,12 +46,21 @@ public class SandboxTenantStatus {
         this.consoleUrl = consoleUrl;
     }
 
+    public String getMessagingUrl() {
+        return messagingUrl;
+    }
+
+    public void setMessagingUrl(String messagingUrl) {
+        this.messagingUrl = messagingUrl;
+    }
+
     @Override
     public String toString() {
         return "SandboxTenantStatus{" +
                 "provisionTimestamp='" + provisionTimestamp + '\'' +
                 ", expirationTimestamp='" + expirationTimestamp + '\'' +
                 ", consoleUrl='" + consoleUrl + '\'' +
+                ", messagingUrl='" + messagingUrl + '\'' +
                 '}';
     }
 }

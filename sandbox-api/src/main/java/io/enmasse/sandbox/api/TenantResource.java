@@ -69,6 +69,9 @@ public class TenantResource {
             if (sandboxTenant.getStatus().getConsoleUrl() != null) {
                 tenant.setConsoleUrl(sandboxTenant.getStatus().getConsoleUrl());
             }
+            if (sandboxTenant.getStatus().getMessagingUrl() != null) {
+                tenant.setMessagingUrl(sandboxTenant.getStatus().getMessagingUrl());
+            }
         }
         return tenant;
     }

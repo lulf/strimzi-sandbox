@@ -2,11 +2,13 @@ package io.enmasse.sandbox.operator;
 
 import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
+import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.scheduler.Scheduled;
+import okhttp3.Address;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -67,7 +69,7 @@ public class SandboxProvisioner {
         // Provision new tenants as long as we have the capacity.
         while (numProvisioned < maxTenants && unProvisionedTenants.hasNext()) {
             SandboxTenant unprovisioned = unProvisionedTenants.next();
-            provisionTenant(unprovisioned);
+            provisionTenant(unprovisioned, getNamespace(unprovisioned));
 
             // Update tenant status with information
             SandboxTenantStatus status = new SandboxTenantStatus();
@@ -79,20 +81,62 @@ public class SandboxProvisioner {
             numProvisioned++;
         }
 
-        // Garbage collect expired tenants
+        // Process tenants
         for (SandboxTenant sandboxTenant : provisionedTenants) {
             LocalDateTime expiration = LocalDateTime.from(dateTimeFormatter.parse(sandboxTenant.getStatus().getExpirationTimestamp()));
+            // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
+            } else {
+                String ns = getNamespace(sandboxTenant);
+                MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
+                        kubernetesClient.customResources(CustomResources.getAddressSpaceCrd(), AddressSpace.class, AddressSpaceList.class, DoneableAddressSpace.class);
+                for (AddressSpace addressSpace : spaceOp.inNamespace(ns).list().getItems()) {
+                    if (addressSpace.getMetadata().getAnnotations() != null) {
+                        String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
+                        if (infraUuid != null) {
+                            String host = String.format("messaging.%s.sandbox.enmasse.io", ns);
+                            kubernetesClient.extensions().ingresses().inNamespace(ns).createOrReplaceWithNew()
+                                    .editOrNewMetadata()
+                                    .withName("messaging")
+                                    .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
+                                    .endMetadata()
+                                    .editOrNewSpec()
+                                    .addNewRule()
+                                    .withHost(host)
+                                    .withNewHttp()
+                                    .addNewPath()
+                                    .editOrNewBackend()
+                                    .withServiceName(String.format("messaging-%s", infraUuid))
+                                    .withServicePort(new IntOrString(5671))
+                                    .endBackend()
+                                    .endPath()
+                                    .endHttp()
+                                    .endRule()
+                                    .addNewTl()
+                                    .withHosts(host)
+                                    .endTl()
+                                    .endSpec()
+                                    .done();
+
+                            if (sandboxTenant.getStatus() != null && sandboxTenant.getStatus().getMessagingUrl() == null) {
+                                sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", host));
+                                op.updateStatus(sandboxTenant);
+                            }
+                        }
+                    }
+                }
             }
         }
     }
+    private String getNamespace(SandboxTenant obj) {
+        return "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
+    }
 
-    private void provisionTenant(SandboxTenant obj) {
+    private void provisionTenant(SandboxTenant obj, String namespace) {
         log.info("Creating resources for tenant {}", obj.getMetadata().getName());
 
-        String namespace = "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
 
         kubernetesClient.namespaces().createOrReplaceWithNew()
                 .editOrNewMetadata()
