@@ -75,6 +75,7 @@ public class SandboxProvisioner {
             SandboxTenantStatus status = new SandboxTenantStatus();
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
+            status.setNamespace(getNamespace(unprovisioned));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 

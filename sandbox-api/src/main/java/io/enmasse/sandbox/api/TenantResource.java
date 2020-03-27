@@ -72,6 +72,9 @@ public class TenantResource {
             if (sandboxTenant.getStatus().getMessagingUrl() != null) {
                 tenant.setMessagingUrl(sandboxTenant.getStatus().getMessagingUrl());
             }
+            if (sandboxTenant.getStatus().getNamespace() != null) {
+                tenant.setNamespace(sandboxTenant.getStatus().getNamespace());
+            }
         }
         return tenant;
     }

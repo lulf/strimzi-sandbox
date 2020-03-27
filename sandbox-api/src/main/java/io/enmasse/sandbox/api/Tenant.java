@@ -8,6 +8,7 @@ public class Tenant {
     private String expirationTimestamp;
     private String consoleUrl;
     private String messagingUrl;
+    private String namespace;
 
     public String getName() {
         return name;
@@ -63,5 +64,13 @@ public class Tenant {
 
     public void setMessagingUrl(String messagingUrl) {
         this.messagingUrl = messagingUrl;
+    }
+
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
     }
 }

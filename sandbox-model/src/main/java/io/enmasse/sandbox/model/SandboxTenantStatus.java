@@ -21,6 +21,7 @@ public class SandboxTenantStatus {
     private String expirationTimestamp;
     private String consoleUrl;
     private String messagingUrl;
+    private String namespace;
 
     public String getProvisionTimestamp() {
         return provisionTimestamp;
@@ -54,6 +55,14 @@ public class SandboxTenantStatus {
         this.messagingUrl = messagingUrl;
     }
 
+    public String getNamespace() {
+        return namespace;
+    }
+
+    public void setNamespace(String namespace) {
+        this.namespace = namespace;
+    }
+
     @Override
     public String toString() {
         return "SandboxTenantStatus{" +
@@ -61,6 +70,7 @@ public class SandboxTenantStatus {
                 ", expirationTimestamp='" + expirationTimestamp + '\'' +
                 ", consoleUrl='" + consoleUrl + '\'' +
                 ", messagingUrl='" + messagingUrl + '\'' +
+                ", namespace='" + namespace + '\'' +
                 '}';
     }
 }
