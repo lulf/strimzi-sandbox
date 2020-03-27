@@ -24,7 +24,7 @@ kubectl apply -f ../deploy/enmasse
 
 ```
 kubectl create namespace keycloak
-kubectl apply -f ../deploy/keycloak
+kubectl apply -n keycloak -f ../deploy/keycloak
 ```
 
 ## Configure /etc/hosts
@@ -86,6 +86,6 @@ line argument `--enable-ssl-passthrough`.
 ## Create the secret with oidc credentials
 
 ```
-kubectl create secret generic oidc-secret --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
+kubectl create secret generic oidc-secret -n enmasse-infra --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
 ```
 
