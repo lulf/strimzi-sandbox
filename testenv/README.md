@@ -25,6 +25,7 @@ kubectl apply -f ../deploy/enmasse
 ```
 kubectl create namespace keycloak
 kubectl apply -n keycloak -f ../deploy/keycloak
+kubectl create secret -n keycloak generic  keycloak-admin-user --from-literal=password=keycloak
 ```
 
 ## Configure /etc/hosts
