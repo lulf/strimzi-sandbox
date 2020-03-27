@@ -90,3 +90,8 @@ line argument `--enable-ssl-passthrough`.
 kubectl create secret generic oidc-secret -n enmasse-infra --from-literal=client-id=kube --from-literal=client-secret=2687b747-82ee-48cd-bb49-17f8a5041c17
 ```
 
+## (Workaround) Ensure console can resolve keycloak.devlocal
+
+```
+oc patch  -n enmasse-infra deployment/console -p '{"spec":{"template":{"spec":{"hostAliases":[{"ip":"'$(minikube ip)'", "hostnames" : ["keycloak.devlocal"]}]}}}}'
+```
