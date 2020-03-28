@@ -108,13 +108,14 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
-                                    <p>Logged in as {this.state.tenant.name}</p>
-                                    <p>Registered at {creationDateStr}</p>
-                                    <p>Provisioned at {provisionDateStr}</p>
-                                    <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
-                                    <p>Console URL: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                    <p>Messaging URL: No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</p>
-                                    <br />
+                                    <table>
+                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
+                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
+                                    <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
+                                    <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
+                                    <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
+                                    <tr><td>Messaging URL</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
+                                    </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={kubeconfig} />
                                     <div className="InNavApp">
@@ -132,13 +133,14 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
-                                    <p>Logged in as {this.state.tenant.name}</p>
-                                    <p>Registered at {creationDateStr}</p>
-                                    <p>Provisioned at {provisionDateStr}</p>
-                                    <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
-                                    <p>Console URL: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                    <p>Messaging URL: {messagingUrl}</p>
-                                    <br />
+                                    <table>
+                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
+                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
+                                    <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
+                                    <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
+                                    <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
+                                    <tr><td>Messaging URL</td><td>{messagingUrl}</td></tr>
+                                    </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
                                     <div className="InNavApp">
