@@ -104,7 +104,7 @@ class Dashboard extends Component {
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
                         var kubeconfig = generateKubeConfig(this.state.keycloak, this.state.tenant.subject, this.state.tenant.namespace);
-                        if (this.state.tenant.messagingUrl !== undefined) {
+                        if (this.state.tenant.messagingUrl === undefined) {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
@@ -113,7 +113,7 @@ class Dashboard extends Component {
                                     <p>Provisioned at {provisionDateStr}</p>
                                     <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
                                     <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                    <p>Messaging: No address space created</p>
+                                    <p>Messaging: No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</p>
                                     <input id="download" type="hidden" value={kubeconfig} />
                                     <div className="InNavApp">
                                     <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
