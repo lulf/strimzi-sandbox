@@ -112,8 +112,10 @@ class Dashboard extends Component {
                                     <p>Registered at {creationDateStr}</p>
                                     <p>Provisioned at {provisionDateStr}</p>
                                     <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
-                                    <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                    <p>Messaging: No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</p>
+                                    <p>Console URL: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                    <p>Messaging URL: No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</p>
+                                    <br />
+                                    <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={kubeconfig} />
                                     <div className="InNavApp">
                                     <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
@@ -134,8 +136,10 @@ class Dashboard extends Component {
                                     <p>Registered at {creationDateStr}</p>
                                     <p>Provisioned at {provisionDateStr}</p>
                                     <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
-                                    <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
-                                    <p>Messaging: {messagingUrl}</p>
+                                    <p>Console URL: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
+                                    <p>Messaging URL: {messagingUrl}</p>
+                                    <br />
+                                    <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
                                     <div className="InNavApp">
                                     <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
