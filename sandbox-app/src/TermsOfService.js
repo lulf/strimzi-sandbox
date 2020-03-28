@@ -12,6 +12,7 @@ class TermsOfService extends Component {
               <li>We do not collect nor share with third parties any of the data you provide when registering.</li>
               <li>The sandbox will be running the latest EnMasse master build that may be updated without further notice.</li>
               <li>Everyone who knows your tenant identifier will be able to produce and consume data to your instance.</li>
+              <li>Sandbox tenants may be deleted due to maintenance work without further notice.</li>
               </ul>
         </div>);
   }
