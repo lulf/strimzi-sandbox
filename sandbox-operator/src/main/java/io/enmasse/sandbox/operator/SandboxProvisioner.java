@@ -34,10 +34,10 @@ public class SandboxProvisioner {
     @Inject
     KubernetesClient kubernetesClient;
 
-    @ConfigProperty(name = "io.enmasse.sandbox.maxtenants", defaultValue = "3")
+    @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "3")
     int maxTenants;
 
-    @ConfigProperty(name = "io.enmasse.sandbox.expirationTime", defaultValue = "3h")
+    @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
     @Scheduled(every = "3m")

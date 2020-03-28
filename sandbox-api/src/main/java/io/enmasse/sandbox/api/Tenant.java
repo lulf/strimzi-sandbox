@@ -9,6 +9,8 @@ public class Tenant {
     private String consoleUrl;
     private String messagingUrl;
     private String namespace;
+    private Integer placeInQueue;
+    private String estimatedProvisionTime;
 
     public String getName() {
         return name;
@@ -72,5 +74,21 @@ public class Tenant {
 
     public void setNamespace(String namespace) {
         this.namespace = namespace;
+    }
+
+    public String getEstimatedProvisionTime() {
+        return estimatedProvisionTime;
+    }
+
+    public void setEstimatedProvisionTime(String estimatedProvisionTime) {
+        this.estimatedProvisionTime = estimatedProvisionTime;
+    }
+
+    public Integer getPlaceInQueue() {
+        return placeInQueue;
+    }
+
+    public void setPlaceInQueue(Integer placeInQueue) {
+        this.placeInQueue = placeInQueue;
     }
 }

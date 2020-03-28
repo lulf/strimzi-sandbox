@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sandbox-config
+  namespace: sandbox
+data:
+  expirationTime: "4h"
+  maxTenants: "3"

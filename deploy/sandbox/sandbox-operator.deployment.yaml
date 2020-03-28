@@ -20,3 +20,14 @@ spec:
       - name: operator
         image: quay.io/enmasse/sandbox-operator:latest
         imagePullPolicy: Always
+        env:
+        - name: ENMASSE_SANDBOX_EXPIRATION_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-config
+              key: expirationTime
+        - name: ENMASSE_SANDBOX_MAXTENANTS
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-config
+              key: maxTenants

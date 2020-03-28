@@ -53,35 +53,58 @@ class Dashboard extends Component {
     }
 
     componentDidMount() {
+        this.updateState();
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.timerId);
+    }
+
+    updateState() {
         const keycloak = Keycloak('/keycloak.json');
         keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
             var self = this;
             var state = { keycloak: keycloak, authenticated: authenticated };
             if (authenticated) {
-                var token = keycloak.token;
-                keycloak.loadUserProfile().then(function (profile) {
-                    fetch('https://api.sandbox.enmasse.io/api/tenants/' + profile.username, {
-                        crossDomain: true,
-                        method: 'GET',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'Authorization': "Bearer " + token,
-                        },
-                    }).then((response) => {
-                        return response.json();
-                    }).then((data) => {
-                        state.tenant = data;
-                        self.setState(state);
-                    }).catch(function () {
-                        self.setState(state);
-                    });
-                }).catch(function() {
-                    this.setState(state);
-                });
+                self.fetchData(keycloak, state);
+                self.timerId = setInterval(function() {
+                    self.fetchData(keycloak, state)
+                }, 10000);
             } else {
                 this.setState(state);
             }
+        });
+    }
+
+    fetchData(keycloak, state) {
+        var self = this;
+        var token = keycloak.token;
+        keycloak.loadUserProfile().then(function (profile) {
+            fetch('https://api.sandbox.enmasse.io/api/tenants/' + profile.username, {
+                crossDomain: true,
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'Authorization': "Bearer " + token,
+                },
+            }).then((response) => {
+                console.log("Response: " + JSON.stringify(response.status));
+                if (response.status < 200 || response.status >= 300) {
+                    state.tenant = undefined;
+                    self.setState(state);
+                }
+                return response.json();
+            }).then((data) => {
+                if (JSON.stringify(data) !== JSON.stringify(self.state.tenant)) {
+                    state.tenant = data;
+                    self.setState(state);
+                }
+            }).catch(function () {
+                self.setState(state);
+            });
+        }).catch(function() {
+            self.setState(state);
         });
     }
 
@@ -109,12 +132,14 @@ class Dashboard extends Component {
                                 <div className="App">
                                     <h3>Status</h3>
                                     <table>
+                                    <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
                                     <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
                                     <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
+                                    </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={kubeconfig} />
@@ -134,12 +159,14 @@ class Dashboard extends Component {
                                 <div className="App">
                                     <h3>Status</h3>
                                     <table>
+                                    <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
                                     <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
                                     <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>{messagingUrl}</td></tr>
+                                    </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
                                     <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
@@ -156,17 +183,44 @@ class Dashboard extends Component {
                         }
                         
                     } else {
-                        return (
-                                <div className="App">
-                                <h3>Status</h3>
-                                <p>Logged in as {this.state.tenant.name}</p>
-                                <p>Registered at {creationDateStr}</p>
-                                <p>Environment not yet provisioned</p>
-                                <div className="InNavApp">
-                                <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                                </div>
-                                </div>
-                        );
+                        var queueNum = this.state.tenant.placeInQueue;
+                        if (queueNum !== undefined) {
+                            var estimateProvisionTimestamp = Date.parse(this.state.tenant.estimatedProvisionTime);
+                            var estimateProvisionDateStr = new Date(estimateProvisionTimestamp).toLocaleString();
+                            return (
+                                    <div className="App">
+                                    <h3>Status</h3>
+                                    <p>Environment not yet provisioned</p>
+                                    <table>
+                                    <tbody>
+                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
+                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
+                                    <tr><td>Place in provisioning queue</td><td>{queueNum}</td></tr>
+                                    <tr><td>Estimated provisioning date</td><td>{estimateProvisionDateStr}</td></tr>
+                                    </tbody>
+                                    </table>
+                                    <div className="InNavApp">
+                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
+                                    </div>
+                                    </div>
+                            );
+                        } else {
+                            return (
+                                    <div className="App">
+                                    <h3>Status</h3>
+                                    <p>Environment not yet provisioned</p>
+                                    <table>
+                                    <tbody>
+                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
+                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
+                                    </tbody>
+                                    </table>
+                                    <div className="InNavApp">
+                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
+                                    </div>
+                                    </div>
+                            );
+                        }
                     }
                 } else {
                     return (

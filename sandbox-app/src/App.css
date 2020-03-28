@@ -58,3 +58,7 @@ body {
   margin-top: 3%;
   margin-left: 5%;
 }
+
+td {
+    padding-right: 15px;
+}

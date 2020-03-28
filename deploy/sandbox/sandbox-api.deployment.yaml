@@ -43,4 +43,14 @@ spec:
           value: "true"
         - name: QUARKUS_HTTP_CORS_ORIGINS
           value: "http://localhost:3000,https://sandbox.enmasse.io,https://api.sandbox.enmasse.io"
+        - name: ENMASSE_SANDBOX_EXPIRATION_TIME
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-config
+              key: expirationTime
+        - name: ENMASSE_SANDBOX_MAXTENANTS
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-config
+              key: maxTenants
         imagePullPolicy: Always
