@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 public class SandboxProvisioner {
     private static final Logger log = LoggerFactory.getLogger(SandboxProvisioner.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
+    private static final String enmasseNamespace = "enmasse-infra";
 
     @Inject
     KubernetesClient kubernetesClient;
@@ -85,12 +86,13 @@ public class SandboxProvisioner {
         // Process tenants
         for (SandboxTenant sandboxTenant : provisionedTenants) {
             LocalDateTime expiration = LocalDateTime.from(dateTimeFormatter.parse(sandboxTenant.getStatus().getExpirationTimestamp()));
+            String ns = getNamespace(sandboxTenant);
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
+                kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             } else {
-                String ns = getNamespace(sandboxTenant);
                 MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
                         kubernetesClient.customResources(CustomResources.getAddressSpaceCrd(), AddressSpace.class, AddressSpaceList.class, DoneableAddressSpace.class);
                 for (AddressSpace addressSpace : spaceOp.inNamespace(ns).list().getItems()) {
@@ -98,7 +100,7 @@ public class SandboxProvisioner {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
                             String host = String.format("messaging.%s.sandbox.enmasse.io", ns);
-                            kubernetesClient.extensions().ingresses().inNamespace("enmasse-infra").createOrReplaceWithNew()
+                            kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
                                     .editOrNewMetadata()
                                     .withName(ns)
                                     .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
