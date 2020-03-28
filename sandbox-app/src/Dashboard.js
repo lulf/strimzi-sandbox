@@ -54,7 +54,7 @@ class Dashboard extends Component {
 
     componentDidMount() {
         const keycloak = Keycloak('/keycloak.json');
-        keycloak.init({onLoad: 'check-sso', promiseType: 'native'}).then(authenticated => {
+        keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
             var self = this;
             var state = { keycloak: keycloak, authenticated: authenticated };
             if (authenticated) {
@@ -174,12 +174,12 @@ class Dashboard extends Component {
                 }
             } else {
                 return (
-                        <div className="App">
-                        <h3>Account not registered</h3>
-                        <div className="InNavApp">
-                        <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                        </div>
-                        </div>
+                <div className="App">
+                <h3>Not logged in</h3>
+                <div className="InNavApp">
+                <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
+                </div>
+                </div>
                 );
             }
         }
