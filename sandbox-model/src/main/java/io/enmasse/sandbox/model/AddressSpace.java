@@ -1,5 +1,7 @@
 package io.enmasse.sandbox.model;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -9,6 +11,9 @@ import io.fabric8.kubernetes.api.model.ObjectMeta;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.BuildableReference;
 import io.sundr.builder.annotations.Inline;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Buildable(
         editableEnabled = false,
@@ -28,6 +33,8 @@ public class AddressSpace implements HasMetadata {
     private String apiVersion = "enmasse.io/v1beta1";
     private String kind = "AddressSpace";
     private ObjectMeta metadata = new ObjectMeta();
+
+    private Map<String, Object> additionalProperties = new HashMap<>(0);
 
     public ObjectMeta getMetadata() {
         return metadata;
@@ -50,5 +57,20 @@ public class AddressSpace implements HasMetadata {
     @Override
     public void setApiVersion(String version) {
         this.apiVersion = version;
+    }
+
+
+    public void setAdditionalProperties(final Map<String, Object> additionalProperties) {
+        this.additionalProperties = additionalProperties;
+    }
+
+    @JsonAnyGetter
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
+    }
+
+    @JsonAnySetter
+    public void setAdditionalProperty(final String name, final Object value) {
+        this.additionalProperties.put(name, value);
     }
 }
