@@ -98,9 +98,9 @@ public class SandboxProvisioner {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
                             String host = String.format("messaging.%s.sandbox.enmasse.io", ns);
-                            kubernetesClient.extensions().ingresses().inNamespace(ns).createOrReplaceWithNew()
+                            kubernetesClient.extensions().ingresses().inNamespace("enmasse-infra").createOrReplaceWithNew()
                                     .editOrNewMetadata()
-                                    .withName("messaging")
+                                    .withName(ns)
                                     .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
                                     .endMetadata()
                                     .editOrNewSpec()
