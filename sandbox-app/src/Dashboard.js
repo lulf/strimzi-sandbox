@@ -89,7 +89,6 @@ class Dashboard extends Component {
                     'Authorization': "Bearer " + token,
                 },
             }).then((response) => {
-                console.log("Response: " + JSON.stringify(response.status));
                 if (response.status < 200 || response.status >= 300) {
                     state.tenant = undefined;
                     self.setState(state);
