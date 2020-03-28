@@ -99,6 +99,8 @@ class Dashboard extends Component {
                         var provisionDateStr = provisionDate.toLocaleString();
                         var now = Date.now();
                         var timeUntilDeletion = (expirationTimestamp - now) / 1000;
+                        var expireDate = new Date(expirationTimestamp);
+                        var expireDateStr = expireDate.toLocaleString();
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
                         var kubeconfig = generateKubeConfig(this.state.keycloak, this.state.tenant.subject, this.state.tenant.namespace);
@@ -108,7 +110,8 @@ class Dashboard extends Component {
                                     <h3>Status</h3>
                                     <p>Logged in as {this.state.tenant.name}</p>
                                     <p>Registered at {creationDateStr}</p>
-                                    <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
+                                    <p>Provisioned at {provisionDateStr}</p>
+                                    <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
                                     <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
                                     <p>Messaging: No address space created</p>
                                     <input id="download" type="hidden" value={kubeconfig} />
@@ -129,7 +132,8 @@ class Dashboard extends Component {
                                     <h3>Status</h3>
                                     <p>Logged in as {this.state.tenant.name}</p>
                                     <p>Registered at {creationDateStr}</p>
-                                    <p>Provisioned at {provisionDateStr} (Expires in {expireDays} days and {expireHours} hours)</p>
+                                    <p>Provisioned at {provisionDateStr}</p>
+                                    <p>Expires at {expireDateStr} (In {expireDays} days and {expireHours} hours)</p>
                                     <p>Console: <a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></p>
                                     <p>Messaging: {messagingUrl}</p>
                                     <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
