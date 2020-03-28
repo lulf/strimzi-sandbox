@@ -18,3 +18,6 @@ rules:
   - apiGroups: [ "enmasse.io" ]
     resources: [ "addressspaces", "addresses" ]
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
+  - apiGroups: [ "extensions" ]
+    resources: [ "ingresses" ]
+    verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]
