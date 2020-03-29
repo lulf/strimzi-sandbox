@@ -145,7 +145,7 @@ class Dashboard extends Component {
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
-                                    <tr><td>Kubeconfig</td><td><a href="#" onClick={this.downloadKubeconfig}>Download</a></td></tr>
+                                    <tr><td>Kubeconfig</td><td><a href="/" onClick={this.downloadKubeconfig}>Download</a></td></tr>
                                     </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
@@ -170,7 +170,7 @@ class Dashboard extends Component {
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>{messagingUrl}</td></tr>
-                                    <tr><td>Kubeconfig</td><td><a href="#" onClick={this.downloadKubeconfig}>Download</a></td></tr>
+                                    <tr><td>Kubeconfig</td><td><a href="/" onClick={this.downloadKubeconfig}>Download</a></td></tr>
                                     </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
