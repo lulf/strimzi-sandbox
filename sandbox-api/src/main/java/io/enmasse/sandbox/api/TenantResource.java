@@ -148,13 +148,33 @@ public class TenantResource {
         tenant.setEstimatedProvisionTime(dateTimeFormatter.format(start));
     }
 
-    private final Keycloak keycloak = KeycloakBuilder.builder()
-                .serverUrl("https://auth.sandbox.enmasse.io/auth")
-                .realm("master")
-                .username("keycloak")
-                .password("")
-                .clientId("admin-cli")
-                .build();
+    @ConfigProperty(name = "keycloak.realm.admin.user")
+    String adminUser;
+
+    @ConfigProperty(name = "keycloak.realm.admin.password")
+    String adminPassword;
+
+    @ConfigProperty(name = "keycloak.url", defaultValue = "https://auth.sandbox.enmasse.io/auth")
+    String keycloakUrl;
+
+    @ConfigProperty(name = "keycloak.realm", defaultValue = "k8s")
+    String keycloakRealm;
+
+    private Keycloak keycloak;
+
+    private synchronized Keycloak getInstance() {
+        if (keycloak == null) {
+            keycloak = KeycloakBuilder.builder()
+                    .serverUrl(keycloakUrl)
+                    .realm(keycloakRealm)
+                    .username(adminUser)
+                    .password(adminPassword)
+                    .clientId("admin-cli")
+                    .build();
+        }
+        return keycloak;
+    }
+
 
     @DELETE
     @Path("{name}/unlink")
@@ -164,11 +184,19 @@ public class TenantResource {
             throw new UnauthorizedException("Unknown tenant " + name);
         }
 
-        List<UserRepresentation> users = keycloak.realm("k8s").users().search(name);
-        log.info("Found {} users", users.size());
-        for (UserRepresentation userRepresentation : users) {
-            keycloak.realm("k8s").users().delete(userRepresentation.getId());
+        Keycloak keycloak = getInstance();
+
+        log.info("Listing users...");
+        try {
+            List<UserRepresentation> users = keycloak.realm("k8s").users().search(name);
+            log.info("Found {} users", users.size());
+            for (UserRepresentation userRepresentation : users) {
+                keycloak.realm("k8s").users().delete(userRepresentation.getId());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
     }
 
     @DELETE

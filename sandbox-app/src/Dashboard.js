@@ -230,17 +230,13 @@ class Dashboard extends Component {
                             <h3>Status</h3>
                             <p>Not registered</p>
                             <NavLink className="linkBlack" to="/register">Register</NavLink>
-                            
-                            </div>
-                    );
-
-                    /*
                             &nbsp;
                             &nbsp;
                             &nbsp;
                             &nbsp;
                             <NavLink className="linkBlack" to="/deleteuser">Forget me</NavLink>
-                            */
+                            </div>
+                    );
                 }
             } else {
                 return (

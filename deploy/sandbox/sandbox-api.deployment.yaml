@@ -53,4 +53,14 @@ spec:
             configMapKeyRef:
               name: sandbox-config
               key: maxTenants
+        - name: KEYCLOAK_REALM_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: sandbox-api
+              key: username
+        - name: KEYCLOAK_REALM_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: sandbox-api
+              key: password
         imagePullPolicy: Always
