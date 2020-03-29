@@ -1,0 +1,13 @@
+apiVersion: admin.enmasse.io/v1beta2
+kind: AddressPlan
+metadata:
+  name: small-subscription
+  namespace: enmasse-infra
+spec:
+  displayName: Small Subscription
+  shortDescription: Durable subscription for a topic
+  resources:
+    broker: 0.5
+    router: 0.1
+  addressType: subscription
+

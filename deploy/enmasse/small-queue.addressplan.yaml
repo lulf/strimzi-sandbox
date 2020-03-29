@@ -1,11 +1,11 @@
 apiVersion: admin.enmasse.io/v1beta2
 kind: AddressPlan
 metadata:
-  name: default-queue
+  name: small-queue
   namespace: enmasse-infra
 spec:
-  displayName: Queue
-  shortDescription: Persisted queue address
+  displayName: Small Queue
+  shortDescription: Address with queue semantics
   resources:
     broker: 0.5
     router: 0.1

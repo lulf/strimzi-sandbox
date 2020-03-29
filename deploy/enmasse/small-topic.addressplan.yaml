@@ -1,0 +1,14 @@
+apiVersion: admin.enmasse.io/v1beta2
+kind: AddressPlan
+metadata:
+  name: small-topic
+  namespace: enmasse-infra
+spec:
+  displayName: Small Topic
+  shortDescription: Address with pub-sub semantics
+  resources:
+    broker: 1.0
+    router: 0.1
+  addressType: topic
+
+

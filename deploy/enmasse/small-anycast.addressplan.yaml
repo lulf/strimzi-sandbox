@@ -1,11 +1,11 @@
 apiVersion: admin.enmasse.io/v1beta2
 kind: AddressPlan
 metadata:
-  name: default-anycast
+  name: small-anycast
   namespace: enmasse-infra
 spec:
-  displayName: Anycast
-  shortDescription: Volatile anycast address
+  displayName: Small Anycast
+  shortDescription: Address with anycast semantics
   resources:
     router: 0.1
   addressType: anycast

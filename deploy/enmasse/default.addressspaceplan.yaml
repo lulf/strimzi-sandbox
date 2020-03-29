@@ -13,7 +13,9 @@ spec:
     aggregate: 2.0
   addressSpaceType: standard
   addressPlans:
-    - default-queue
-    - default-anycast
-    - default-multicast
+    - small-queue
+    - small-topic
+    - small-subscription
+    - small-anycast
+    - small-multicast
 
