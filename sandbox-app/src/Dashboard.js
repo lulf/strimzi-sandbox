@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import Keycloak from 'keycloak-js';
 import './App.css';
 import { NavLink } from 'react-router-dom';
+import TermsOfService from './TermsOfService.js';
+import { API_URL } from './constants';
 
 var generateKubeConfig = function(kc, user, tenantNamespace) {
     return {
@@ -66,7 +68,7 @@ class Dashboard extends Component {
 
     updateState() {
         const keycloak = Keycloak('/keycloak.json');
-        keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
+        keycloak.init({onLoad: 'check-sso', promiseType: 'native'}).then(authenticated => {
             var self = this;
             var state = { keycloak: keycloak, authenticated: authenticated };
             if (authenticated) {
@@ -84,7 +86,7 @@ class Dashboard extends Component {
         var self = this;
         var token = keycloak.token;
         keycloak.loadUserProfile().then(function (profile) {
-            fetch('https://api.sandbox.enmasse.io/api/tenants/' + profile.username, {
+            fetch(API_URL + '/api/tenants/' + profile.username, {
                 crossDomain: true,
                 method: 'GET',
                 headers: {
@@ -134,6 +136,7 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
+                                    <input id="download" type="hidden" value={kubeconfig} />
                                     <table>
                                     <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
@@ -142,17 +145,14 @@ class Dashboard extends Component {
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
+                                    <tr><td>Kubeconfig</td><td><a href="#" onClick={this.downloadKubeconfig}>Download</a></td></tr>
                                     </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
-                                    <input id="download" type="hidden" value={kubeconfig} />
-                                    <div className="InNavApp">
-                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                                    &nbsp;
-                                    &nbsp;
-                                    &nbsp;
-                                    &nbsp;
-                                    <NavLink className="largeLink" to="/Dashboard" onClick={this.downloadKubeconfig}>Download Kubeconfig</NavLink>
+                                    <br />
+
+                                    <div>
+                                    <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
                                     </div>
                                 </div>
                             );
@@ -161,6 +161,7 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
+                                    <input id="download" type="hidden" value={kubeconfig} />
                                     <table>
                                     <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
@@ -169,17 +170,14 @@ class Dashboard extends Component {
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
                                     <tr><td>Messaging URL</td><td>{messagingUrl}</td></tr>
+                                    <tr><td>Kubeconfig</td><td><a href="#" onClick={this.downloadKubeconfig}>Download</a></td></tr>
                                     </tbody>
                                     </table>
                                     <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
-                                    <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
-                                    <div className="InNavApp">
-                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                                    &nbsp;
-                                    &nbsp;
-                                    &nbsp;
-                                    &nbsp;
-                                    <NavLink className="largeLink" to="/Dashboard" onClick={this.downloadKubeconfig}>Download Kubeconfig</NavLink>
+                                    <br />
+
+                                    <div>
+                                    <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
                                     </div>
                                 </div>
                             );
@@ -203,7 +201,7 @@ class Dashboard extends Component {
                                     </tbody>
                                     </table>
                                     <div className="InNavApp">
-                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
+                                    <NavLink className="linkBlack" to="/unregister">Cancel registration</NavLink>
                                     </div>
                                     </div>
                             );
@@ -219,7 +217,7 @@ class Dashboard extends Component {
                                     </tbody>
                                     </table>
                                     <div className="InNavApp">
-                                    <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
+                                    <NavLink className="linkBlack" to="/unregister">Cancel</NavLink>
                                     </div>
                                     </div>
                             );
@@ -228,20 +226,32 @@ class Dashboard extends Component {
                 } else {
                     return (
                             <div className="App">
-                            <h3>Not registered</h3>
-                            <div className="InNavApp">
-                            <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                            </div>
+                            <TermsOfService />
+                            <h3>Status</h3>
+                            <p>Not registered</p>
+                            <NavLink className="linkBlack" to="/register">Register</NavLink>
+                            
                             </div>
                     );
+
+                    /*
+                            &nbsp;
+                            &nbsp;
+                            &nbsp;
+                            &nbsp;
+                            <NavLink className="linkBlack" to="/deleteuser">Forget me</NavLink>
+                            */
                 }
             } else {
                 return (
                 <div className="App">
-                <h3>Not logged in</h3>
-                <div className="InNavApp">
-                <NavLink className="largeLinkBlack" to="/">{'<'} Back</NavLink>
-                </div>
+                <TermsOfService />
+                <NavLink className="linkBlack" to="/login">Login</NavLink>
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                &nbsp;
+                <NavLink className="linkBlack" to="/register">Register</NavLink>
                 </div>
                 );
             }

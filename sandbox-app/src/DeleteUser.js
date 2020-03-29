@@ -8,7 +8,7 @@ import './App.css';
 import { Redirect } from 'react-router';
 import { API_URL } from './constants';
 
-class Register extends Component {
+class DeleteUser extends Component {
     constructor(props) {
         super(props);
         this.state = { keycloak: null, authenticated: false };
@@ -22,23 +22,19 @@ class Register extends Component {
             if (authenticated) {
                 var token = keycloak.token;
                 keycloak.loadUserProfile().then(function (profile) {
-                    fetch(API_URL + '/api/tenants', {
+                    fetch(API_URL + '/api/tenants/' + profile.username + '/unlink', {
                         crossDomain: true,
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
                             'Authorization': "Bearer " + token,
-                        },
-                        body: JSON.stringify({
-                            name: profile.username,
-                            subject: profile.email,
-                        })
+                        }
                     }).then((response) => {
-                        if (response.ok || response.status === 409) {
-                            state.registered = true;
+                        if (response.ok) {
+                            state.deleted = true;
                         } else {
-                            state.registrationError = response.status;
+                            state.deletionError = response.status;
                         }
                         self.setState(state);
                     }).catch(function () {
@@ -56,8 +52,14 @@ class Register extends Component {
     render() {
         if (this.state.keycloak) {
             if (this.state.authenticated) {
-                if (this.state.registered) {
+                if (this.state.deleted) {
                     return (<Redirect to="/" />);
+                } else {
+                    return (
+                        <div className="App">
+                        <h3>Error: {this.state.deletionError}</h3>
+                        <Redirect to="/" />
+                        </div>);
                 }
             }
             return (<Redirect to="/" />);
@@ -70,4 +72,4 @@ class Register extends Component {
     }
 };
 
-export default Register;
+export default DeleteUser;

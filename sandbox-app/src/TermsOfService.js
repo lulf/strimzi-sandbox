@@ -8,7 +8,7 @@ import './App.css';
 class TermsOfService extends Component {
   render() {
       return (
-              <div className="App">
+              <div>
               <h3>Note</h3>
               <ul>
               <li>The service is intended for <b>testing purposes only</b>. Under no circumstances should it be used for any production use case.</li>

@@ -38,19 +38,23 @@ body {
   color: #61dafb;
 }
 
-.largeLink {
+.linkBlack {
   color: white;
-  background: #75a0d3;
-  padding: 10px;
-  font-size: calc(8px + 1vmin);
+  background: black;
+  padding: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-size: calc(1vmin);
   text-decoration: none;
 }
 
-.largeLinkBlack {
-  color: white;
-  background: black;
-  padding: 10px;
-  font-size: calc(8px + 1vmin);
+.linkBlack:hover{
+  color: black;
+  background: gray;
+  padding: 12px;
+  padding-left: 15px;
+  padding-right: 15px;
+  font-size: calc(1vmin);
   text-decoration: none;
 }
 

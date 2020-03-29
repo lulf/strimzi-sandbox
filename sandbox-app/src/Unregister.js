@@ -8,7 +8,7 @@ import './App.css';
 import { Redirect } from 'react-router';
 import { API_URL } from './constants';
 
-class Register extends Component {
+class Unregister extends Component {
     constructor(props) {
         super(props);
         this.state = { keycloak: null, authenticated: false };
@@ -22,23 +22,19 @@ class Register extends Component {
             if (authenticated) {
                 var token = keycloak.token;
                 keycloak.loadUserProfile().then(function (profile) {
-                    fetch(API_URL + '/api/tenants', {
+                    fetch(API_URL + '/api/tenants/' + profile.username, {
                         crossDomain: true,
-                        method: 'POST',
+                        method: 'DELETE',
                         headers: {
                             'Accept': 'application/json',
                             'Content-Type': 'application/json',
                             'Authorization': "Bearer " + token,
-                        },
-                        body: JSON.stringify({
-                            name: profile.username,
-                            subject: profile.email,
-                        })
+                        }
                     }).then((response) => {
-                        if (response.ok || response.status === 409) {
-                            state.registered = true;
+                        if (response.ok) {
+                            state.unregistered = true;
                         } else {
-                            state.registrationError = response.status;
+                            state.unregistrationError = response.status;
                         }
                         self.setState(state);
                     }).catch(function () {
@@ -56,11 +52,8 @@ class Register extends Component {
     render() {
         if (this.state.keycloak) {
             if (this.state.authenticated) {
-                if (this.state.registered) {
-                    return (<Redirect to="/" />);
-                }
+                return (<Redirect to="/" />);
             }
-            return (<Redirect to="/" />);
         }
         return (
                 <div className="App">
@@ -70,4 +63,4 @@ class Register extends Component {
     }
 };
 
-export default Register;
+export default Unregister;
