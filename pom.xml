@@ -24,6 +24,7 @@
     <yarn.version>v1.21.1</yarn.version>
     <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
     <guava.version>28.2-jre</guava.version>
+    <keycloak.version>9.0.2</keycloak.version>
   </properties>
   <modules>
     <module>sandbox-model</module>
@@ -39,6 +40,31 @@
         <version>${quarkus.platform.version}</version>
         <type>pom</type>
         <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-core</artifactId>
+        <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-adapter-spi</artifactId>
+        <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-core</artifactId>
+        <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-authz-client</artifactId>
+        <version>${keycloak.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.keycloak</groupId>
+        <artifactId>keycloak-admin-client</artifactId>
+        <version>${keycloak.version}</version>
       </dependency>
       <dependency>
         <groupId>io.enmasse.sandbox</groupId>
