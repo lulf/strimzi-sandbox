@@ -53,7 +53,7 @@ public class SandboxProvisioner {
                     return dateA.compareTo(dateB);
                 }).collect(Collectors.toList());
 
-        log.info("Tenants by creation time {}", tenantsByCreationTime);
+        log.info("Tenants by creation time {}", tenantsByCreationTime.stream().map(t -> t.getMetadata().getName()).collect(Collectors.toList()));
 
         // Those already provisioned will be garbage-collected if they have expired
         List<SandboxTenant> provisionedTenants = tenantsByCreationTime.stream()
@@ -99,6 +99,7 @@ public class SandboxProvisioner {
                     if (addressSpace.getMetadata().getAnnotations() != null) {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
+                            log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
                             String host = String.format("messaging.%s.sandbox.enmasse.io", ns);
                             kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
                                     .editOrNewMetadata()
