@@ -15,6 +15,8 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -29,11 +31,17 @@ import java.util.stream.Collectors;
 @Path("/api/tenants")
 @Authenticated
 public class TenantResource {
+    private static final Logger log = LoggerFactory.getLogger(TenantResource.class);
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
+
     @Inject
     SecurityIdentity identity;
 
     @Inject
     KubernetesClient kubernetesClient;
+
+    @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
+    Duration expirationTime;
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -43,6 +51,7 @@ public class TenantResource {
         if (sandboxTenant != null) {
             throw new WebApplicationException("Tenant already exists", 409);
         }
+        log.info("Creating tenant {}", tenant.getName());
         op.withName(tenant.getName()).createNew()
                 .editOrNewMetadata()
                 .withName(tenant.getName())
@@ -96,11 +105,6 @@ public class TenantResource {
         }
         return tenant;
     }
-
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
-
-    @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
-    Duration expirationTime;
 
     private void setEstimates(Tenant tenant, List<SandboxTenant> tenants) {
         List<SandboxTenant> tenantsByExpiration = tenants.stream()
