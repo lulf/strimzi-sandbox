@@ -57,7 +57,7 @@ public class SandboxProvisioner {
                     return dateA.compareTo(dateB);
                 }).collect(Collectors.toList());
 
-        log.info("Tenants by creation time {}", tenantsByCreationTime.stream().map(t -> t.getMetadata().getName()).collect(Collectors.toList()));
+        log.info("Tenants by creation time {}", tenantsByCreationTime.stream().map(t -> String.format("%s:%s", t.getMetadata().getName(), t.getMetadata().getCreationTimestamp())).collect(Collectors.toList()));
 
         // Those already provisioned will be garbage-collected if they have expired
         List<SandboxTenant> provisionedTenants = tenantsByCreationTime.stream()
@@ -74,13 +74,14 @@ public class SandboxProvisioner {
         // Provision new tenants as long as we have the capacity.
         while (numProvisioned < maxTenants && unProvisionedTenants.hasNext()) {
             SandboxTenant unprovisioned = unProvisionedTenants.next();
-            provisionTenant(unprovisioned, getNamespace(unprovisioned));
+            String ns = getNamespace(unprovisioned);
+            provisionTenant(unprovisioned, ns);
 
             // Update tenant status with information
             SandboxTenantStatus status = new SandboxTenantStatus();
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
-            status.setNamespace(getNamespace(unprovisioned));
+            status.setNamespace(ns);
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 
