@@ -15,6 +15,10 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -144,9 +148,32 @@ public class TenantResource {
         tenant.setEstimatedProvisionTime(dateTimeFormatter.format(start));
     }
 
+    private final Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl("https://auth.sandbox.enmasse.io/auth")
+                .realm("master")
+                .username("keycloak")
+                .password("")
+                .clientId("admin-cli")
+                .build();
+
+    @DELETE
+    @Path("{name}/unlink")
+    public void deleteUser(@PathParam("name") String name) {
+        log.info("Unlink user request {} {}", name, identity.getPrincipal().getName());
+        if (!name.equals(identity.getPrincipal().getName())) {
+            throw new UnauthorizedException("Unknown tenant " + name);
+        }
+
+        List<UserRepresentation> users = keycloak.realm("k8s").users().search(name);
+        log.info("Found {} users", users.size());
+        for (UserRepresentation userRepresentation : users) {
+            keycloak.realm("k8s").users().delete(userRepresentation.getId());
+        }
+    }
+
     @DELETE
     @Path("{name}")
-    public void delete(@PathParam("name") String name) {
+    public void unregister(@PathParam("name") String name) {
         if (!name.equals(identity.getPrincipal().getName())) {
             throw new UnauthorizedException("Unknown tenant " + name);
         }
@@ -156,8 +183,9 @@ public class TenantResource {
         if (sandboxTenant == null) {
             throw new NotFoundException("Unknown tenant " + name);
         }
-        if (!op.withName(name).delete()) {
+        if (!op.withName(name).cascading(true).delete()) {
             throw new InternalServerErrorException("Error deleting tenant");
         }
+        log.info("Deleted tenant {}", name);
     }
 }
