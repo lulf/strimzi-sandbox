@@ -136,7 +136,7 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
-                                    <input id="download" type="hidden" value={kubeconfig} />
+                                    <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
                                     <table>
                                     <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
@@ -161,7 +161,7 @@ class Dashboard extends Component {
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
-                                    <input id="download" type="hidden" value={kubeconfig} />
+                                    <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
                                     <table>
                                     <tbody>
                                     <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
