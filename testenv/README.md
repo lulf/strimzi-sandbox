@@ -84,6 +84,10 @@ Edit the sandbox-api/src/main/resources/application.properties and set the serve
 Edit the `nginx-ingress-controller` deployment in the `kube-system` namespace and add the command
 line argument `--enable-ssl-passthrough`.
 
+```
+kubectl patch  -n kube-system  deployment/nginx-ingress-controller --type=json -p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--enable-ssl-passthrough"}]'
+```
+
 ## Create the secret with oidc credentials
 
 ```
