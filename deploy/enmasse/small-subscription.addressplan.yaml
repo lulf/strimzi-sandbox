@@ -7,7 +7,7 @@ spec:
   displayName: Small Subscription
   shortDescription: Durable subscription for a topic
   resources:
-    broker: 0.5
+    broker: 0.4
     router: 0.1
   addressType: subscription
 

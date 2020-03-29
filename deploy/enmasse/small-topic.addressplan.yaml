@@ -7,7 +7,7 @@ spec:
   displayName: Small Topic
   shortDescription: Address with pub-sub semantics
   resources:
-    broker: 1.0
+    broker: 0.8
     router: 0.1
   addressType: topic
 
