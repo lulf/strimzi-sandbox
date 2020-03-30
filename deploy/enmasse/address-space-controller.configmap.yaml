@@ -3,4 +3,5 @@ metadata:
   name: address-space-controller-config
   namespace: enmasse-infra
 data:
-  wildcardEndpointCertSecret: messaging-cert
+  #wildcardEndpointCertSecret: messaging-cert
+  exposeEndpointsByDefault: "false"

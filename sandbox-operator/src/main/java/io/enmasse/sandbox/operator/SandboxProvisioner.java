@@ -96,7 +96,6 @@ public class SandboxProvisioner {
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
-                kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withLabels(Map.of("app", "sandbox.enmasse.io", "tenant", ns)).delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             } else {
                 MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
@@ -118,7 +117,7 @@ public class SandboxProvisioner {
                                     op.updateStatus(sandboxTenant);
                                 }
                                 if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
-                                    sandboxTenant.getStatus().setMessagingWssUrl(String.format("amqp-wss://%s:443", messagingWssHost));
+                                    sandboxTenant.getStatus().setMessagingWssUrl(String.format("wss://%s:443", messagingWssHost));
                                     op.updateStatus(sandboxTenant);
                                 }
                             }
@@ -127,6 +126,13 @@ public class SandboxProvisioner {
                 }
             }
         }
+
+        // Remove ingress resources not part of current set of tenants
+        String[] currentTenants = tenantsByCreationTime.stream().map(this::getNamespace).toArray(String[]::new);
+        kubernetesClient.extensions().ingresses()
+                .inNamespace(enmasseNamespace)
+                .withLabels(Map.of("app", "sandbox.enmasse.io"))
+                .withLabelNotIn("tenant", currentTenants).delete();
     }
 
     private void createEndpoint(String ns, String infraUuid, String host, int port) {
