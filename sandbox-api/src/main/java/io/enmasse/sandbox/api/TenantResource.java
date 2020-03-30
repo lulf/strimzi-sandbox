@@ -104,6 +104,9 @@ public class TenantResource {
             if (sandboxTenant.getStatus().getNamespace() != null) {
                 tenant.setNamespace(sandboxTenant.getStatus().getNamespace());
             }
+            if (sandboxTenant.getStatus().getMessagingWssUrl() != null) {
+                tenant.setMessagingWssUrl(sandboxTenant.getStatus().getMessagingWssUrl());
+            }
         } else {
             setEstimates(tenant, tenants);
         }

@@ -32,6 +32,8 @@ spec:
                 type: string
               messagingUrl:
                 type: string
+              messagingWssUrl:
+                type: string
               namespace:
                 type: string
   scope: Cluster

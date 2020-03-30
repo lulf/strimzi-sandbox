@@ -12,6 +12,7 @@ public class Tenant {
     private String expirationTimestamp;
     private String consoleUrl;
     private String messagingUrl;
+    private String messagingWssUrl;
     private String namespace;
     private Integer placeInQueue;
     private String estimatedProvisionTime;
@@ -94,5 +95,13 @@ public class Tenant {
 
     public void setPlaceInQueue(Integer placeInQueue) {
         this.placeInQueue = placeInQueue;
+    }
+
+    public String getMessagingWssUrl() {
+        return messagingWssUrl;
+    }
+
+    public void setMessagingWssUrl(String messagingWssUrl) {
+        this.messagingWssUrl = messagingWssUrl;
     }
 }

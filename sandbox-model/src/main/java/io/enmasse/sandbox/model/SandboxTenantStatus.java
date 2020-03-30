@@ -25,6 +25,7 @@ public class SandboxTenantStatus {
     private String expirationTimestamp;
     private String consoleUrl;
     private String messagingUrl;
+    private String messagingWssUrl;
     private String namespace;
 
     public String getProvisionTimestamp() {
@@ -76,5 +77,13 @@ public class SandboxTenantStatus {
                 ", messagingUrl='" + messagingUrl + '\'' +
                 ", namespace='" + namespace + '\'' +
                 '}';
+    }
+
+    public String getMessagingWssUrl() {
+        return messagingWssUrl;
+    }
+
+    public void setMessagingWssUrl(String messagingWssUrl) {
+        this.messagingWssUrl = messagingWssUrl;
     }
 }

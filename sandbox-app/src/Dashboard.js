@@ -144,7 +144,8 @@ class Dashboard extends Component {
                                     <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
-                                    <tr><td>Messaging URL</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
+                                    <tr><td>Messaging URL (AMQP+TLS)</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
+                                    <tr><td>Messaging URL (AMQP-WS+TLS)</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
                                     <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
                                     </tbody>
                                     </table>
@@ -158,6 +159,7 @@ class Dashboard extends Component {
                             );
                         } else {
                             var messagingUrl = this.state.tenant.messagingUrl;
+                            var messagingWssUrl = this.state.tenant.messagingWssUrl;
                             return (
                                 <div className="App">
                                     <h3>Status</h3>
@@ -169,7 +171,8 @@ class Dashboard extends Component {
                                     <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
                                     <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                     <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
-                                    <tr><td>Messaging URL</td><td>{messagingUrl}</td></tr>
+                                    <tr><td>Messaging URL (AMQP+TLS)</td><td>{messagingUrl}</td></tr>
+                                    <tr><td>Messaging URL (AMQP-WS+TLS)</td><td>{messagingWssUrl}</td></tr>
                                     <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
                                     </tbody>
                                     </table>

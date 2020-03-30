@@ -26,6 +26,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -44,7 +45,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
-    @Scheduled(every = "3m")
+    @Scheduled(every = "1m")
     public synchronized void processTenants() {
 
         MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
@@ -95,7 +96,7 @@ public class SandboxProvisioner {
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
-                kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).delete();
+                kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withLabels(Map.of("app", "sandbox.enmasse.io", "tenant", ns)).delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             } else {
                 MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
@@ -104,34 +105,22 @@ public class SandboxProvisioner {
                     if (addressSpace.getMetadata().getAnnotations() != null) {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
-                            log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
-                            String host = String.format("messaging.%s.sandbox.enmasse.io", ns);
-                            kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
-                                    .editOrNewMetadata()
-                                    .withName(ns)
-                                    .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
-                                    .endMetadata()
-                                    .editOrNewSpec()
-                                    .addNewRule()
-                                    .withHost(host)
-                                    .withNewHttp()
-                                    .addNewPath()
-                                    .editOrNewBackend()
-                                    .withServiceName(String.format("messaging-%s", infraUuid))
-                                    .withServicePort(new IntOrString(5671))
-                                    .endBackend()
-                                    .endPath()
-                                    .endHttp()
-                                    .endRule()
-                                    .addNewTl()
-                                    .withHosts(host)
-                                    .endTl()
-                                    .endSpec()
-                                    .done();
+                            log.info("Creating ingresses for tenant {}", sandboxTenant.getMetadata().getName());
+                            String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
+                            createEndpoint(ns, infraUuid, messagingHost, 5671);
 
-                            if (sandboxTenant.getStatus() != null && sandboxTenant.getStatus().getMessagingUrl() == null) {
-                                sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", host));
-                                op.updateStatus(sandboxTenant);
+                            String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
+                            createEndpoint(ns, infraUuid, messagingWssHost, 443);
+
+                            if (sandboxTenant.getStatus() != null) {
+                                if (sandboxTenant.getStatus().getMessagingUrl() == null) {
+                                    sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", messagingHost));
+                                    op.updateStatus(sandboxTenant);
+                                }
+                                if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
+                                    sandboxTenant.getStatus().setMessagingWssUrl(String.format("amqp-wss://%s:443", messagingWssHost));
+                                    op.updateStatus(sandboxTenant);
+                                }
                             }
                         }
                     }
@@ -139,6 +128,35 @@ public class SandboxProvisioner {
             }
         }
     }
+
+    private void createEndpoint(String ns, String infraUuid, String host, int port) {
+        kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
+                .editOrNewMetadata()
+                .withName(String.format("%s-%d", ns, port))
+                .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
+                .addToLabels("app", "sandbox.enmasse.io")
+                .addToLabels("tenant", ns)
+                .endMetadata()
+                .editOrNewSpec()
+                .addNewRule()
+                .withHost(host)
+                .withNewHttp()
+                .addNewPath()
+                .editOrNewBackend()
+                .withServiceName(String.format("messaging-%s", infraUuid))
+                .withServicePort(new IntOrString(port))
+                .endBackend()
+                .endPath()
+                .endHttp()
+                .endRule()
+                .addNewTl()
+                .withHosts(host)
+                .endTl()
+                .endSpec()
+                .done();
+
+    }
+
     private String getNamespace(SandboxTenant obj) {
         return "tenant-" + Hashing.sha256().hashString(obj.getMetadata().getName(), StandardCharsets.UTF_8).toString().substring(0, 8);
     }
