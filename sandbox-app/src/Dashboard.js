@@ -7,6 +7,7 @@ import Keycloak from 'keycloak-js';
 import './App.css';
 import { NavLink } from 'react-router-dom';
 import TermsOfService from './TermsOfService.js';
+import Features from './Features.js';
 import { API_URL } from './constants';
 
 var generateKubeConfig = function(kc, user, tenantNamespace) {
@@ -230,6 +231,7 @@ class Dashboard extends Component {
                     return (
                             <div className="App">
                             <TermsOfService />
+                            <Features />
                             <h3>Status</h3>
                             <p>Not registered</p>
                             <NavLink className="linkBlack" to="/register">Register</NavLink>
@@ -245,6 +247,7 @@ class Dashboard extends Component {
                 return (
                 <div className="App">
                 <TermsOfService />
+                <Features />
                 <NavLink className="linkBlack" to="/login">Login</NavLink>
                 &nbsp;
                 &nbsp;
