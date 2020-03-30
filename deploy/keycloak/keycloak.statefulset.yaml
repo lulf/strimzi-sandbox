@@ -36,9 +36,16 @@ spec:
         image: jboss/keycloak:9.0.0
         imagePullPolicy: IfNotPresent
         command: [ "/scripts/keycloak.sh" ]
+        resources:
+          requests:
+            memory: 2Gi
+          limits:
+            memory: 2Gi
         env:
         - name: KEYCLOAK_USER
           value: keycloak
+        - name: JAVA_OPTS
+          value: "-Xmx1024m"
         - name: PROXY_ADDRESS_FORWARDING
           value: "true"
         - name: KEYCLOAK_PASSWORD
