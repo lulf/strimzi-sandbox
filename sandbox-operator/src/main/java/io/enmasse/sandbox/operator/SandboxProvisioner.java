@@ -112,12 +112,16 @@ public class SandboxProvisioner {
                             createEndpoint(ns, infraUuid, messagingWssHost, 443);
 
                             if (sandboxTenant.getStatus() != null) {
+                                boolean changed = false;
                                 if (sandboxTenant.getStatus().getMessagingUrl() == null) {
                                     sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", messagingHost));
-                                    op.updateStatus(sandboxTenant);
+                                    changed = true;
                                 }
                                 if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
                                     sandboxTenant.getStatus().setMessagingWssUrl(String.format("wss://%s:443", messagingWssHost));
+                                    changed = true;
+                                }
+                                if (changed) {
                                     op.updateStatus(sandboxTenant);
                                 }
                             }
