@@ -99,6 +99,11 @@ public class SandboxProvisioner {
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
+                kubernetesClient.extensions().ingresses()
+                        .inNamespace(enmasseNamespace)
+                        .withName(ns)
+                        .cascading(true)
+                        .delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             } else {
                 MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
