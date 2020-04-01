@@ -45,7 +45,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
-    @ConfigProperty(name = "enmase.sandbox.cert-issuer", defaultValue = "letsencrypt-staging")
+    @ConfigProperty(name = "enmasse.sandbox.cert-issuer", defaultValue = "letsencrypt-staging")
     String certIssuer;
 
     @Scheduled(every = "1m")

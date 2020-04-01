@@ -31,3 +31,8 @@ spec:
             configMapKeyRef:
               name: sandbox-config
               key: maxTenants
+        - name: ENMASSE_SANDBOX_CERT_ISSUER
+          valueFrom:
+            configMapKeyRef:
+              name: sandbox-config
+              key: certIssuer
