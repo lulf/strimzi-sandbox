@@ -45,6 +45,9 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
+    @ConfigProperty(name = "enmase.sandbox.cert-issuer", defaultValue = "letsencrypt-staging")
+    String certIssuer;
+
     @Scheduled(every = "1m")
     public synchronized void processTenants() {
 
@@ -105,25 +108,8 @@ public class SandboxProvisioner {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
                             log.info("Creating ingresses for tenant {}", sandboxTenant.getMetadata().getName());
-                            String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
-                            createEndpoint(ns, infraUuid, messagingHost, 5671);
-
-                            String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
-                            createEndpoint(ns, infraUuid, messagingWssHost, 443);
-
-                            if (sandboxTenant.getStatus() != null) {
-                                boolean changed = false;
-                                if (sandboxTenant.getStatus().getMessagingUrl() == null) {
-                                    sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", messagingHost));
-                                    changed = true;
-                                }
-                                if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
-                                    sandboxTenant.getStatus().setMessagingWssUrl(String.format("wss://%s:443", messagingWssHost));
-                                    changed = true;
-                                }
-                                if (changed) {
-                                    op.updateStatus(sandboxTenant);
-                                }
+                            if (createEndpoints(sandboxTenant, ns, infraUuid)) {
+                                op.updateStatus(sandboxTenant);
                             }
                         }
                     }
@@ -139,32 +125,62 @@ public class SandboxProvisioner {
                 .withLabelNotIn("tenant", currentTenants).delete();
     }
 
-    private void createEndpoint(String ns, String infraUuid, String host, int port) {
+    private boolean createEndpoints(SandboxTenant sandboxTenant, String ns, String infraUuid) {
+        String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
+        String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
+
         kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
                 .editOrNewMetadata()
-                .withName(String.format("%s-%d", ns, port))
+                .withName(ns)
                 .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
+                .addToAnnotations("kubernetes.io/ingress.class", "nginx")
+                .addToAnnotations("kubernetes.io/tls-acme", "true")
+                .addToAnnotations("cert-manager.io/cluster-issuer", certIssuer)
                 .addToLabels("app", "sandbox.enmasse.io")
                 .addToLabels("tenant", ns)
                 .endMetadata()
                 .editOrNewSpec()
                 .addNewRule()
-                .withHost(host)
+                .withHost(messagingHost)
                 .withNewHttp()
                 .addNewPath()
                 .editOrNewBackend()
                 .withServiceName(String.format("messaging-%s", infraUuid))
-                .withServicePort(new IntOrString(port))
+                .withServicePort(new IntOrString(5671))
+                .endBackend()
+                .endPath()
+                .endHttp()
+                .endRule()
+                .addNewRule()
+                .withHost(messagingWssHost)
+                .withNewHttp()
+                .addNewPath()
+                .editOrNewBackend()
+                .withServiceName(String.format("messaging-%s", infraUuid))
+                .withServicePort(new IntOrString(443))
                 .endBackend()
                 .endPath()
                 .endHttp()
                 .endRule()
                 .addNewTl()
-                .withHosts(host)
+                .withHosts(messagingHost, messagingWssHost)
+                .withSecretName("external-certs-messaging-" + infraUuid)
                 .endTl()
                 .endSpec()
                 .done();
 
+        boolean changed = false;
+        if (sandboxTenant.getStatus() != null) {
+            if (sandboxTenant.getStatus().getMessagingUrl() == null) {
+                sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", messagingHost));
+                changed = true;
+            }
+            if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
+                sandboxTenant.getStatus().setMessagingWssUrl(String.format("wss://%s:443", messagingWssHost));
+                changed = true;
+            }
+        }
+        return changed;
     }
 
     private String getNamespace(SandboxTenant obj) {
