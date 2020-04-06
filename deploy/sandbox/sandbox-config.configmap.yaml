@@ -4,6 +4,6 @@ metadata:
   name: sandbox-config
   namespace: sandbox
 data:
-  expirationTime: "24h"
+  expirationTime: "48h"
   maxTenants: "3"
   certIssuer: "letsencrypt-prod"
