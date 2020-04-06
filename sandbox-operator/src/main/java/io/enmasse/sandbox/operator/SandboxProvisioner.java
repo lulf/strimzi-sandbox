@@ -8,6 +8,7 @@ import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -112,7 +113,6 @@ public class SandboxProvisioner {
                     if (addressSpace.getMetadata().getAnnotations() != null) {
                         String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
                         if (infraUuid != null) {
-                            log.info("Creating ingresses for tenant {}", sandboxTenant.getMetadata().getName());
                             if (createEndpoints(sandboxTenant, ns, infraUuid)) {
                                 op.updateStatus(sandboxTenant);
                             }
@@ -133,46 +133,49 @@ public class SandboxProvisioner {
     private boolean createEndpoints(SandboxTenant sandboxTenant, String ns, String infraUuid) {
         String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
         String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
-
-        kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
-                .editOrNewMetadata()
-                .withName(ns)
-                .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
-                .addToAnnotations("kubernetes.io/ingress.class", "nginx")
-                .addToAnnotations("kubernetes.io/tls-acme", "true")
-                .addToAnnotations("cert-manager.io/cluster-issuer", certIssuer)
-                .addToLabels("app", "sandbox.enmasse.io")
-                .addToLabels("tenant", ns)
-                .endMetadata()
-                .editOrNewSpec()
-                .addNewRule()
-                .withHost(messagingHost)
-                .withNewHttp()
-                .addNewPath()
-                .editOrNewBackend()
-                .withServiceName(String.format("messaging-%s", infraUuid))
-                .withServicePort(new IntOrString(5671))
-                .endBackend()
-                .endPath()
-                .endHttp()
-                .endRule()
-                .addNewRule()
-                .withHost(messagingWssHost)
-                .withNewHttp()
-                .addNewPath()
-                .editOrNewBackend()
-                .withServiceName(String.format("messaging-%s", infraUuid))
-                .withServicePort(new IntOrString(443))
-                .endBackend()
-                .endPath()
-                .endHttp()
-                .endRule()
-                .addNewTl()
-                .withHosts(messagingHost, messagingWssHost)
-                .withSecretName("external-certs-messaging-" + infraUuid)
-                .endTl()
-                .endSpec()
-                .done();
+        Ingress ingress = kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).get();
+        if (ingress == null) {
+            log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
+            kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
+                    .editOrNewMetadata()
+                    .withName(ns)
+                    .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
+                    .addToAnnotations("kubernetes.io/ingress.class", "nginx")
+                    .addToAnnotations("kubernetes.io/tls-acme", "true")
+                    .addToAnnotations("cert-manager.io/cluster-issuer", certIssuer)
+                    .addToLabels("app", "sandbox.enmasse.io")
+                    .addToLabels("tenant", ns)
+                    .endMetadata()
+                    .editOrNewSpec()
+                    .addNewRule()
+                    .withHost(messagingHost)
+                    .withNewHttp()
+                    .addNewPath()
+                    .editOrNewBackend()
+                    .withServiceName(String.format("messaging-%s", infraUuid))
+                    .withServicePort(new IntOrString(5671))
+                    .endBackend()
+                    .endPath()
+                    .endHttp()
+                    .endRule()
+                    .addNewRule()
+                    .withHost(messagingWssHost)
+                    .withNewHttp()
+                    .addNewPath()
+                    .editOrNewBackend()
+                    .withServiceName(String.format("messaging-%s", infraUuid))
+                    .withServicePort(new IntOrString(443))
+                    .endBackend()
+                    .endPath()
+                    .endHttp()
+                    .endRule()
+                    .addNewTl()
+                    .withHosts(messagingHost, messagingWssHost)
+                    .withSecretName("external-certs-messaging-" + infraUuid)
+                    .endTl()
+                    .endSpec()
+                    .done();
+        }
 
         boolean changed = false;
         if (sandboxTenant.getStatus() != null) {
