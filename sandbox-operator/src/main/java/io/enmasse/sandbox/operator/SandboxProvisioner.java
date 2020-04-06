@@ -8,6 +8,7 @@ import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
@@ -128,11 +129,32 @@ public class SandboxProvisioner {
                 .inNamespace(enmasseNamespace)
                 .withLabels(Map.of("app", "sandbox.enmasse.io"))
                 .withLabelNotIn("tenant", currentTenants).delete();
+
+        // Remove secrets used by ingresses in the past
+        kubernetesClient.secrets()
+                .inNamespace(enmasseNamespace)
+                .withLabels(Map.of("app", "sandbox.enmasse.io"))
+                .withLabelNotIn("tenant", currentTenants).delete();
     }
 
     private boolean createEndpoints(SandboxTenant sandboxTenant, String ns, String infraUuid) {
         String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
         String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
+        String secretName = "external-certs-messaging-" + infraUuid;
+        Secret certSecret = kubernetesClient.secrets().inNamespace(enmasseNamespace).withName(secretName).get();
+        if (certSecret == null) {
+            kubernetesClient.secrets().inNamespace(enmasseNamespace).withName(secretName).createOrReplaceWithNew()
+                    .editOrNewMetadata()
+                    .withName(secretName)
+                    .withNamespace(enmasseNamespace)
+                    .addToLabels("app", "sandbox.enmasse.io")
+                    .addToLabels("tenant", ns)
+                    .endMetadata()
+                    .withType("kubernetes.io/tls")
+                    .withData(Map.of("tls.crt", "", "tls.key", ""))
+                    .done();
+        }
+
         Ingress ingress = kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).get();
         if (ingress == null) {
             log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
