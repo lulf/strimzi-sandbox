@@ -47,9 +47,6 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
-    @ConfigProperty(name = "enmasse.sandbox.cert-issuer", defaultValue = "letsencrypt-staging")
-    String certIssuer;
-
     @Scheduled(every = "1m")
     public synchronized void processTenants() {
 
@@ -129,32 +126,11 @@ public class SandboxProvisioner {
                 .inNamespace(enmasseNamespace)
                 .withLabels(Map.of("app", "sandbox.enmasse.io"))
                 .withLabelNotIn("tenant", currentTenants).delete();
-
-        // Remove secrets used by ingresses in the past
-        kubernetesClient.secrets()
-                .inNamespace(enmasseNamespace)
-                .withLabels(Map.of("app", "sandbox.enmasse.io"))
-                .withLabelNotIn("tenant", currentTenants).delete();
     }
 
     private boolean createEndpoints(SandboxTenant sandboxTenant, String ns, String infraUuid) {
         String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
         String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
-        String secretName = "external-certs-messaging-" + infraUuid;
-        Secret certSecret = kubernetesClient.secrets().inNamespace(enmasseNamespace).withName(secretName).get();
-        if (certSecret == null) {
-            kubernetesClient.secrets().inNamespace(enmasseNamespace).withName(secretName).createOrReplaceWithNew()
-                    .editOrNewMetadata()
-                    .withName(secretName)
-                    .withNamespace(enmasseNamespace)
-                    .addToLabels("app", "sandbox.enmasse.io")
-                    .addToLabels("tenant", ns)
-                    .endMetadata()
-                    .withType("kubernetes.io/tls")
-                    .withData(Map.of("tls.crt", "", "tls.key", ""))
-                    .done();
-        }
-
         Ingress ingress = kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).get();
         if (ingress == null) {
             log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
@@ -163,8 +139,6 @@ public class SandboxProvisioner {
                     .withName(ns)
                     .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
                     .addToAnnotations("kubernetes.io/ingress.class", "nginx")
-                    .addToAnnotations("kubernetes.io/tls-acme", "true")
-                    .addToAnnotations("cert-manager.io/cluster-issuer", certIssuer)
                     .addToLabels("app", "sandbox.enmasse.io")
                     .addToLabels("tenant", ns)
                     .endMetadata()
@@ -193,7 +167,6 @@ public class SandboxProvisioner {
                     .endRule()
                     .addNewTl()
                     .withHosts(messagingHost, messagingWssHost)
-                    .withSecretName("external-certs-messaging-" + infraUuid)
                     .endTl()
                     .endSpec()
                     .done();
