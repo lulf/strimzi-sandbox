@@ -12,9 +12,6 @@ class Features extends Component {
               <h3>Supported features</h3>
               <ul>
               <li>A <b>single</b> address space of the <i>standard</i> address space type.</li>
-              <li>Up to 4 client connections.</li>
-              <li>Up to 2 senders per connection.</li>
-              <li>Up to 2 receivers per connection.</li>
               <li>Up to 10 anycast addresses.</li>
               <li>Up to 5 multicast addresses.</li>
               <li>Up to 2 queue addresses.</li>
