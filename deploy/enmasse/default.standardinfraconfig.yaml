@@ -8,14 +8,9 @@ spec:
     resources:
       memory: 256Mi
   router:
-    linkCapacity: 4
+    linkCapacity: 6
     resources:
       memory: 128Mi
-    policy:
-      maxConnections: 4
-      maxSendersPerConnection: 2
-      maxReceiversPerConnection: 2
-      maxSessionsPerConnection: 2
   broker:
     resources:
       memory: 512Mi
