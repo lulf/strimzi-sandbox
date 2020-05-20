@@ -14,8 +14,8 @@ class Login extends Component {
     }
 
     componentDidMount() {
-        const keycloak = Keycloak('/keycloak.json');
-        keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
+        const keycloak = new Keycloak('/keycloak.json');
+        keycloak.init({onLoad: 'login-required'}).then(authenticated => {
             var state = { keycloak: keycloak, authenticated: authenticated };
             this.setState(state);
         })

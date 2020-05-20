@@ -33,7 +33,7 @@ spec:
     spec:
       containers:
       - name: keycloak
-        image: jboss/keycloak:9.0.0
+        image: jboss/keycloak:10.0.1
         imagePullPolicy: IfNotPresent
         command: [ "/scripts/keycloak.sh" ]
         resources:

@@ -16,7 +16,7 @@ class Register extends Component {
 
     componentDidMount() {
         const keycloak = Keycloak('/keycloak.json');
-        keycloak.init({onLoad: 'login-required', promiseType: 'native'}).then(authenticated => {
+        keycloak.init({onLoad: 'login-required'}).then(authenticated => {
             var self = this;
             var state = { keycloak: keycloak, authenticated: authenticated, registered: false };
             if (authenticated) {

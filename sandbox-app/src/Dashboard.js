@@ -68,8 +68,8 @@ class Dashboard extends Component {
     }
 
     updateState() {
-        const keycloak = Keycloak('/keycloak.json');
-        keycloak.init({onLoad: 'check-sso', promiseType: 'native'}).then(authenticated => {
+        const keycloak = new Keycloak('/keycloak.json');
+        keycloak.init({onLoad: 'check-sso'}).then(authenticated => {
             var self = this;
             var state = { keycloak: keycloak, authenticated: authenticated };
             if (authenticated) {

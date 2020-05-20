@@ -15,4 +15,5 @@ spec:
   oauthProxy:
     extraArgs:
       - "-ssl-insecure-skip-verify"
+      - "-skip-provider-button"
 
