@@ -6,11 +6,11 @@ metadata:
   labels:
     prometheus: prometheus
 spec:
-  replicas: 2
+  replicas: 1
   serviceAccountName: prometheus
   serviceMonitorSelector:
     matchLabels:
-      team: frontend
+      project: sandbox
   alerting:
     alertmanagers:
     - namespace: monitoring
