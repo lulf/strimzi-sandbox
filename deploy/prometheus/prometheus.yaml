@@ -8,9 +8,10 @@ metadata:
 spec:
   replicas: 1
   serviceAccountName: prometheus
-  serviceMonitorSelector:
-    matchLabels:
-      project: sandbox
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector: {}
+  ruleNamespaceSelector: {}
+  ruleSelector: {}
   alerting:
     alertmanagers:
     - namespace: monitoring

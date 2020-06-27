@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: metrics
+  namespace: monitoring
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  rules:
+  - host: metrics.sandbox.enmasse.io
+    http:
+      paths:
+      - backend:
+          serviceName: prometheus-operated
+          servicePort: web
+        path: /
+  tls:
+  - hosts:
+      - metrics.sandbox.enmasse.io
+    secretName: monitoring-metrics-cert
