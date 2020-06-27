@@ -15,5 +15,5 @@ spec:
   alerting:
     alertmanagers:
     - namespace: monitoring
-      name: alertmanager
+      name: alertmanager-operated
       port: web
