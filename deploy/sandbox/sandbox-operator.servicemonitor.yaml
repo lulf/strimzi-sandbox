@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: sandbox-operator
+  namespace: sandbox
+  labels:
+    app: enmasse
+spec:
+  selector:
+    matchLabels:
+      app: sandbox
+      component: sandbox-operator
+  endpoints:
+  - port: http
+    metricRelabelings:
+      - sourceLabels: [__name__]
+        targetLabel: __name__
+        replacement: "sandbox_${1}"
+  namespaceSelector: {}

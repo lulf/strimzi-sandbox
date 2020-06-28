@@ -20,6 +20,10 @@ spec:
       - name: operator
         image: quay.io/enmasse/sandbox-operator:latest
         imagePullPolicy: Always
+        ports:
+          - name: http
+            protocol: TCP
+            containerPort: 8080
         env:
         - name: ENMASSE_SANDBOX_EXPIRATION_TIME
           valueFrom:
