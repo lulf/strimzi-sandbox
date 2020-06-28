@@ -8,14 +8,14 @@ import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.*;
 import io.fabric8.kubernetes.api.model.IntOrString;
 import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.Secret;
 import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.scheduler.Scheduled;
-import okhttp3.Address;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,10 +26,11 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -47,19 +48,51 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
+    @Gauge(name = "tenants_total", unit = MetricUnits.NONE, description = "Number of sandbox tenants registered.")
+    public Long getNumTenants() {
+        return (long) currentTenants.size();
+    }
+
+    @Gauge(name = "tenants_provisioned_total", unit = MetricUnits.NONE, description = "Number of currently provisioned sandbox tenants.")
+    public Long getNumProvisionedTenants() {
+        return (long) (int) currentTenants.stream()
+                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null && t.getStatus().getExpirationTimestamp() != null)
+                .count();
+    }
+
+    @Gauge(name = "tenants_provisioning_latency_seconds", unit = MetricUnits.SECONDS, description = "Average time from creation of tenant until it gets provisioned.")
+    public Double getAverageProvisioningTime() {
+        return currentTenants.stream()
+                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null)
+                .mapToLong(t -> {
+                    LocalDateTime creation = LocalDateTime.from(dateTimeFormatter.parse(t.getMetadata().getCreationTimestamp()));
+                    LocalDateTime provisioning = LocalDateTime.from(dateTimeFormatter.parse(t.getStatus().getProvisionTimestamp()));
+                    return Duration.between(creation, provisioning).getSeconds();
+                })
+                .average()
+                .orElse(0.0);
+    }
+
+    private volatile List<SandboxTenant> currentTenants = new ArrayList<>();
+
     @Scheduled(every = "1m")
+    public void refreshTenants() {
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        currentTenants = new ArrayList<>(op.inAnyNamespace().list().getItems());
+    }
+
+    @Scheduled(every = "30s")
     public synchronized void processTenants() {
 
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
-
         // Order tenants by creation time so that we provision the oldest one first
-        List<SandboxTenant> tenantsByCreationTime = op.inAnyNamespace().list().getItems().stream()
+        List<SandboxTenant> tenantsByCreationTime = currentTenants.stream()
                 .sorted((a, b) -> {
                     LocalDateTime dateA = LocalDateTime.from(dateTimeFormatter.parse(a.getMetadata().getCreationTimestamp()));
                     LocalDateTime dateB = LocalDateTime.from(dateTimeFormatter.parse(b.getMetadata().getCreationTimestamp()));
                     return dateA.compareTo(dateB);
                 }).collect(Collectors.toList());
 
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         log.info("Tenants by creation time {}", tenantsByCreationTime.stream().map(t -> String.format("%s:%s", t.getMetadata().getName(), t.getMetadata().getCreationTimestamp())).collect(Collectors.toList()));
 
         // Those already provisioned will be garbage-collected if they have expired

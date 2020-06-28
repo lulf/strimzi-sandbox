@@ -30,6 +30,7 @@ public class SandboxTenantCache implements ResourceEventHandler<SandboxTenant> {
 
     @Override
     public void onAdd(SandboxTenant obj) {
+        log.info("Adding cache entry for tenant {}", obj.getMetadata().getName());
         cache.put(obj.getMetadata().getName(), obj);
         synchronized (listeners) {
             for (Listener listener : listeners) {

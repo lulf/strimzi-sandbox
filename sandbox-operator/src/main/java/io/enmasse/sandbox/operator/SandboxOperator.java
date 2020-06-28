@@ -41,10 +41,10 @@ public class SandboxOperator {
                         public void eventReceived(Action action, SandboxTenant resource) {
                             switch (action) {
                                 case ADDED:
-                                    sandboxProvisioner.processTenants();
+                                    sandboxProvisioner.refreshTenants();
                                     break;
                                 case DELETED:
-                                    sandboxProvisioner.processTenants();
+                                    sandboxProvisioner.refreshTenants();
                                     break;
                                 case MODIFIED:
                                     break;

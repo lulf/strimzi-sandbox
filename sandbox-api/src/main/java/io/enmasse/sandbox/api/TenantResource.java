@@ -15,9 +15,11 @@ import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +51,7 @@ public class TenantResource {
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
+    @Timed(name = "tenant_create_latency_seconds", unit = MetricUnits.SECONDS, description = "A measure of how long it takes to create a tenant.")
     public void create(Tenant tenant) {
         MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         SandboxTenant sandboxTenant = op.withName(tenant.getName()).get();
@@ -69,6 +72,7 @@ public class TenantResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Path("{name}")
+    @Timed(name = "tenant_get_latency_seconds", unit = MetricUnits.SECONDS, description = "A measure of how long it takes to get a tenant.")
     public Tenant get(@PathParam("name") String name) {
         if (!name.equals(identity.getPrincipal().getName())) {
             throw new UnauthorizedException("Unknown tenant " + name);
