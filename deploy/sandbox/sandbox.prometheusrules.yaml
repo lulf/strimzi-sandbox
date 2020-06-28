@@ -1,0 +1,15 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  labels:
+    role: alert-rules
+  name: sandbox
+  namespace: sandbox
+spec:
+  groups:
+  - name: SandboxHealth 
+    rules:
+    - record: enmasse_component_health
+      expr: up{job="sandbox-api"} or on(namespace) (1- absent(up{job="sandbox-api"}))
+    - record: enmasse_component_health
+      expr: up{job="sandbox-operator"} or on(namespace) (1- absent(up{job="sandbox-operator"}))
