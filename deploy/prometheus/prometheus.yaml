@@ -7,7 +7,7 @@ metadata:
     prometheus: prometheus
 spec:
   replicas: 1
-  retention: 1m
+  retention: 4w
   initContainers:
     - name: prometheus-data-permission-fix
       image: busybox
