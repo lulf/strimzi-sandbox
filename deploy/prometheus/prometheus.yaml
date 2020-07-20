@@ -7,6 +7,22 @@ metadata:
     prometheus: prometheus
 spec:
   replicas: 1
+  retention: 1m
+  initContainers:
+    - name: prometheus-data-permission-fix
+      image: busybox
+      command: ["/bin/chmod","-R","777", "/prometheus"]
+      volumeMounts:
+      - name: prometheus-prometheus-db
+        mountPath: /prometheus
+  storage:
+    volumeClaimTemplate:
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 10G
   serviceAccountName: prometheus
   serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector: {}
