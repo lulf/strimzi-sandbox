@@ -152,7 +152,7 @@ class Dashboard extends Component {
                                 <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
                                 </tbody>
                                 </table>
-                                <p>NOTE: All topics that you create must be prefixed with the topic prefix.</p>
+                                <p>NOTE: Kafka clients need to prefix all topics with the above topic prefix.</p>
                                 <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
                                 <br />
 
