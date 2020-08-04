@@ -16,9 +16,9 @@ var generateKubeConfig = function(kc, user, tenantNamespace) {
         kind: "Config",
         clusters: [
             {
-                "name": "enmasse-sandbox",
+                "name": "strimzi-sandbox",
                 "cluster": {
-                    "server": "https://kube-api.sandbox.enmasse.io"
+                    "server": "https://kube-api.strimzi-sandbox.enmasse.io"
                 }
             }
         ],
@@ -32,7 +32,7 @@ var generateKubeConfig = function(kc, user, tenantNamespace) {
                             "client-id": "webapp",
                             "id-token": kc.idToken,
                             "refresh-token": kc.refreshToken,
-                            "idp-issuer-url": "https://auth.sandbox.enmasse.io/auth/realms/k8s"
+                            "idp-issuer-url": "https://auth.strimzi-sandbox.enmasse.io/auth/realms/k8s"
                         }
                     }
                 }
@@ -40,15 +40,15 @@ var generateKubeConfig = function(kc, user, tenantNamespace) {
         ],
         "contexts": [
             {
-                "name": "enmasse-sandbox",
+                "name": "strimzi-sandbox",
                 "context": {
-                    "cluster": "enmasse-sandbox",
+                    "cluster": "strimzi-sandbox",
                     "namespace": tenantNamespace,
                     "user": user
                 }
             }
         ],
-        "current-context": "enmasse-sandbox"
+        "current-context": "strimzi-sandbox"
     };
 };
 
@@ -133,58 +133,31 @@ class Dashboard extends Component {
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
                         var kubeconfig = generateKubeConfig(this.state.keycloak, this.state.tenant.subject, this.state.tenant.namespace);
-                        if (this.state.tenant.messagingUrl === undefined) {
-                            return (
-                                <div className="App">
-                                    <h3>Status</h3>
-                                    <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
-                                    <table>
-                                    <tbody>
-                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
-                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
-                                    <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
-                                    <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
-                                    <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
-                                    <tr><td>Messaging URL (AMQP+TLS)</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
-                                    <tr><td>Messaging URL (AMQP-WS+TLS)</td><td>No address space yet created. Create one using the <a href="https://console.sandbox.enmasse.io">console</a> or using <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl">kubectl</a>.</td></tr>
-                                    <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
-                                    </tbody>
-                                    </table>
-                                    <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
-                                    <br />
+                        var bootstrapHostname = this.state.tenant.bootstrap;
+                        var brokerHostnames = JSON.stringify(this.state.tenant.brokers);
+                        return (
+                            <div className="App">
+                                <h3>Status</h3>
+                                <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
+                                <table>
+                                <tbody>
+                                <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
+                                <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
+                                <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
+                                <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
+                                <tr><td>Bootstrap Hostname</td><td>{bootstrapHostname}</td></tr>
+                                <tr><td>Broker Hostname(s)</td><td>{brokerHostnames}</td></tr>
+                                <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
+                                </tbody>
+                                </table>
+                                <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
+                                <br />
 
-                                    <div>
-                                    <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
-                                    </div>
+                                <div>
+                                <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
                                 </div>
-                            );
-                        } else {
-                            var messagingUrl = this.state.tenant.messagingUrl;
-                            var messagingWssUrl = this.state.tenant.messagingWssUrl;
-                            return (
-                                <div className="App">
-                                    <h3>Status</h3>
-                                    <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
-                                    <table>
-                                    <tbody>
-                                    <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
-                                    <tr><td>Registered at</td><td>{creationDateStr}</td></tr>
-                                    <tr><td>Provisioned at</td><td>{provisionDateStr}</td></tr>
-                                    <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
-                                    <tr><td>Console URL</td><td><a href="https://console.sandbox.enmasse.io">https://console.sandbox.enmasse.io</a></td></tr>
-                                    <tr><td>Messaging URL (AMQP+TLS)</td><td>{messagingUrl}</td></tr>
-                                    <tr><td>Messaging URL (AMQP-WS+TLS)</td><td>{messagingWssUrl}</td></tr>
-                                    <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
-                                    </tbody>
-                                    </table>
-                                    <p>For more information about how to use EnMasse, see the <a href="https://enmasse.io/documentation/master/kubernetes/#tenant-guide-messaging">documentation</a>.</p>
-                                    <br />
-
-                                    <div>
-                                    <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
-                                    </div>
-                                </div>
-                            );
+                            </div>
+                        );
                         }
                         
                     } else {
@@ -269,7 +242,7 @@ class Dashboard extends Component {
         const element = document.createElement("a");
         const file = new Blob([document.getElementById('download').value], {type: "application/json"});
         element.href = URL.createObjectURL(file);
-        element.download = "enmasse-sandbox-kubeconfig.yaml";
+        element.download = "strimzi-sandbox-kubeconfig.yaml";
         document.body.appendChild(element);
         element.click();
     };

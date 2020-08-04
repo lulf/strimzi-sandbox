@@ -5,10 +5,12 @@
 package io.enmasse.sandbox.operator;
 
 import com.google.common.hash.Hashing;
-import io.enmasse.sandbox.model.*;
-import io.fabric8.kubernetes.api.model.IntOrString;
+import io.enmasse.sandbox.model.CustomResources;
+import io.enmasse.sandbox.model.DoneableSandboxTenant;
+import io.enmasse.sandbox.model.SandboxTenant;
+import io.enmasse.sandbox.model.SandboxTenantList;
+import io.enmasse.sandbox.model.SandboxTenantStatus;
 import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.extensions.Ingress;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -27,10 +29,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
@@ -118,6 +120,8 @@ public class SandboxProvisioner {
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
             status.setNamespace(ns);
+            status.setBootstrap("bootstrap.strimzi-sandbox.enmasse.io");
+            status.setBrokers(Collections.singletonList("broker-0.strimzi-sandbox.enmasse.io"));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 
@@ -137,19 +141,6 @@ public class SandboxProvisioner {
                         .cascading(true)
                         .delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
-            } else {
-                MixedOperation<AddressSpace, AddressSpaceList, DoneableAddressSpace, Resource<AddressSpace, DoneableAddressSpace>> spaceOp =
-                        kubernetesClient.customResources(CustomResources.getAddressSpaceCrd(), AddressSpace.class, AddressSpaceList.class, DoneableAddressSpace.class);
-                for (AddressSpace addressSpace : spaceOp.inNamespace(ns).list().getItems()) {
-                    if (addressSpace.getMetadata().getAnnotations() != null) {
-                        String infraUuid = addressSpace.getMetadata().getAnnotations().get("enmasse.io/infra-uuid");
-                        if (infraUuid != null) {
-                            if (createEndpoints(sandboxTenant, ns, infraUuid)) {
-                                op.updateStatus(sandboxTenant);
-                            }
-                        }
-                    }
-                }
             }
         }
 
@@ -159,64 +150,6 @@ public class SandboxProvisioner {
                 .inNamespace(enmasseNamespace)
                 .withLabels(Map.of("app", "sandbox.enmasse.io"))
                 .withLabelNotIn("tenant", currentTenants).delete();
-    }
-
-    private boolean createEndpoints(SandboxTenant sandboxTenant, String ns, String infraUuid) {
-        String messagingHost = String.format("%s.messaging.sandbox.enmasse.io", ns);
-        String messagingWssHost = String.format("%s.messaging-wss.sandbox.enmasse.io", ns);
-        Ingress ingress = kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).withName(ns).get();
-        if (ingress == null) {
-            log.info("Creating ingress for tenant {}", sandboxTenant.getMetadata().getName());
-            kubernetesClient.extensions().ingresses().inNamespace(enmasseNamespace).createOrReplaceWithNew()
-                    .editOrNewMetadata()
-                    .withName(ns)
-                    .addToAnnotations("nginx.ingress.kubernetes.io/ssl-passthrough", "true")
-                    .addToAnnotations("kubernetes.io/ingress.class", "nginx")
-                    .addToLabels("app", "sandbox.enmasse.io")
-                    .addToLabels("tenant", ns)
-                    .endMetadata()
-                    .editOrNewSpec()
-                    .addNewRule()
-                    .withHost(messagingHost)
-                    .withNewHttp()
-                    .addNewPath()
-                    .editOrNewBackend()
-                    .withServiceName(String.format("messaging-%s", infraUuid))
-                    .withServicePort(new IntOrString(5671))
-                    .endBackend()
-                    .endPath()
-                    .endHttp()
-                    .endRule()
-                    .addNewRule()
-                    .withHost(messagingWssHost)
-                    .withNewHttp()
-                    .addNewPath()
-                    .editOrNewBackend()
-                    .withServiceName(String.format("messaging-%s", infraUuid))
-                    .withServicePort(new IntOrString(443))
-                    .endBackend()
-                    .endPath()
-                    .endHttp()
-                    .endRule()
-                    .addNewTl()
-                    .withHosts(messagingHost, messagingWssHost)
-                    .endTl()
-                    .endSpec()
-                    .done();
-        }
-
-        boolean changed = false;
-        if (sandboxTenant.getStatus() != null) {
-            if (sandboxTenant.getStatus().getMessagingUrl() == null) {
-                sandboxTenant.getStatus().setMessagingUrl(String.format("amqps://%s:443", messagingHost));
-                changed = true;
-            }
-            if (sandboxTenant.getStatus().getMessagingWssUrl() == null) {
-                sandboxTenant.getStatus().setMessagingWssUrl(String.format("wss://%s:443", messagingWssHost));
-                changed = true;
-            }
-        }
-        return changed;
     }
 
     private String getNamespace(SandboxTenant obj) {
@@ -308,13 +241,13 @@ public class SandboxProvisioner {
                 .endSubject()
                 .done();
 
-        kubernetesClient.resourceQuotas().inNamespace(namespace).withName("addressspace-quota").createOrReplaceWithNew()
+        kubernetesClient.resourceQuotas().inNamespace(namespace).withName("topic-quota").createOrReplaceWithNew()
                 .editOrNewMetadata()
-                .withName("addressspace-quota")
+                .withName("topic-quota")
                 .withNamespace(namespace)
                 .endMetadata()
                 .editOrNewSpec()
-                .addToHard("count/addressspaces.enmasse.io", new Quantity("1"))
+                .addToHard("count/kafkatopics.strimzi.io", new Quantity("2"))
                 .endSpec()
                 .done();
     }

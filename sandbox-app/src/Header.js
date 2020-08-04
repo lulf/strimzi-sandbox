@@ -18,7 +18,7 @@ class Header extends Component {
                 You can use a <a href="https://www.github.com">GitHub</a> account to register and get a free environment for a limited time period. Once expired, all data for the environment and account data will be deleted.
             </p>
             <p>
-              For more information about EnMasse, go to <a href="https://enmasse.io/">enmasse.io</a>.
+              For more information about Strimzi, go to <a href="https://strimzi.io/">strimzi.io</a>.
             </p>
         </div>);
   }

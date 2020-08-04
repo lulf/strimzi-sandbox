@@ -11,15 +11,11 @@ class Features extends Component {
             <div>
               <h3>Supported features</h3>
               <ul>
-              <li>A <b>single</b> address space of the <i>standard</i> address space type.</li>
-              <li>Up to 10 anycast addresses.</li>
-              <li>Up to 5 multicast addresses.</li>
-              <li>Up to 2 queue addresses.</li>
-              <li>Up to 1 topic addresses.</li>
-              <li>Up to 2 subscription addresses.</li>
-              <li>No authentication of messaging clients.</li>
+              <li>A <b>single</b> shared Kafka cluster.</li>
+              <li>Up to 2 topics.</li>
+              <li>OAuth 2.0 authentication of clients.</li>
+              <li>TLS</li>
               </ul>
-              <p>NOTE: The total number of addresses allowed depends on the type and the mix of address types.</p>
         </div>);
   }
 };

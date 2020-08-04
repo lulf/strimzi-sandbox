@@ -25,6 +25,7 @@
     <frontend-maven-plugin.version>1.9.1</frontend-maven-plugin.version>
     <guava.version>28.2-jre</guava.version>
     <keycloak.version>9.0.2</keycloak.version>
+    <strimzi.version>0.19.0</strimzi.version>
   </properties>
   <modules>
     <module>sandbox-model</module>
@@ -70,6 +71,11 @@
         <groupId>io.enmasse.sandbox</groupId>
         <artifactId>sandbox-model</artifactId>
         <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>io.strimzi</groupId>
+        <artifactId>api</artifactId>
+        <version>${strimzi.version}</version>
       </dependency>
       <dependency>
         <groupId>io.sundr</groupId>

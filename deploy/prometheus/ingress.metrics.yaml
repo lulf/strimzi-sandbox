@@ -8,7 +8,7 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: metrics.sandbox.enmasse.io
+  - host: metrics.strimzi-sandbox.enmasse.io
     http:
       paths:
       - backend:
@@ -17,5 +17,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - metrics.sandbox.enmasse.io
+      - metrics.strimzi-sandbox.enmasse.io
     secretName: monitoring-metrics-cert

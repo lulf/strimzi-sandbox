@@ -108,7 +108,7 @@ metadata:
     nginx.ingress.kubernetes.io/ssl-passthrough: "true"
 spec:
   rules:
-  - host: kube-api.sandbox.enmasse.io 
+  - host: kube-api.strimzi-sandbox.enmasse.io 
     http:
       paths:
       - backend:
@@ -117,7 +117,7 @@ spec:
         path: /
   tls:
   - hosts:
-      - kube-api.sandbox.enmasse.io
+      - kube-api.strimzi-sandbox.enmasse.io
     secretName: kube-oidc-proxy-tls
 ---
 kind: ClusterRoleBinding

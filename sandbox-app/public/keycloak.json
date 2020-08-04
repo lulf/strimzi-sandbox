@@ -1,6 +1,6 @@
 {
   "realm": "k8s",
-  "auth-server-url": "https://auth.sandbox.enmasse.io/auth/",
+  "auth-server-url": "https://auth.strimzi-sandbox.enmasse.io/auth/",
   "ssl-required": "external",
   "resource": "webapp",
   "public-client": true,

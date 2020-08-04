@@ -9,6 +9,8 @@ import io.fabric8.kubernetes.api.model.Doneable;
 import io.sundr.builder.annotations.Buildable;
 import io.sundr.builder.annotations.Inline;
 
+import java.util.List;
+
 @Buildable(
         editableEnabled = false,
         generateBuilderPackage = false,
@@ -23,9 +25,8 @@ import io.sundr.builder.annotations.Inline;
 public class SandboxTenantStatus {
     private String provisionTimestamp;
     private String expirationTimestamp;
-    private String consoleUrl;
-    private String messagingUrl;
-    private String messagingWssUrl;
+    private String bootstrap;
+    private List<String> brokers;
     private String namespace;
 
     public String getProvisionTimestamp() {
@@ -44,22 +45,6 @@ public class SandboxTenantStatus {
         this.expirationTimestamp = expirationTimestamp;
     }
 
-    public String getConsoleUrl() {
-        return consoleUrl;
-    }
-
-    public void setConsoleUrl(String consoleUrl) {
-        this.consoleUrl = consoleUrl;
-    }
-
-    public String getMessagingUrl() {
-        return messagingUrl;
-    }
-
-    public void setMessagingUrl(String messagingUrl) {
-        this.messagingUrl = messagingUrl;
-    }
-
     public String getNamespace() {
         return namespace;
     }
@@ -68,22 +53,30 @@ public class SandboxTenantStatus {
         this.namespace = namespace;
     }
 
+    public String getBootstrap() {
+        return bootstrap;
+    }
+
+    public void setBootstrap(String bootstrap) {
+        this.bootstrap = bootstrap;
+    }
+
+    public List<String> getBrokers() {
+        return brokers;
+    }
+
+    public void setBrokers(List<String> brokers) {
+        this.brokers = brokers;
+    }
+
     @Override
     public String toString() {
         return "SandboxTenantStatus{" +
                 "provisionTimestamp='" + provisionTimestamp + '\'' +
                 ", expirationTimestamp='" + expirationTimestamp + '\'' +
-                ", consoleUrl='" + consoleUrl + '\'' +
-                ", messagingUrl='" + messagingUrl + '\'' +
+                ", bootstrap='" + bootstrap + '\'' +
+                ", brokers=" + brokers +
                 ", namespace='" + namespace + '\'' +
                 '}';
-    }
-
-    public String getMessagingWssUrl() {
-        return messagingWssUrl;
-    }
-
-    public void setMessagingWssUrl(String messagingWssUrl) {
-        this.messagingWssUrl = messagingWssUrl;
     }
 }

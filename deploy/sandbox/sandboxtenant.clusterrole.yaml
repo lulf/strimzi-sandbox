@@ -3,6 +3,6 @@ kind: ClusterRole
 metadata:
   name: sandbox-tenant
 rules:
-  - apiGroups: [ "enmasse.io" ]
-    resources: [ "addresses", "addressspaces" ]
+  - apiGroups: [ "kafka.strimzi.io" ]
+    resources: [ "kafkatopics" ]
     verbs: [ "create", "update", "patch", "get", "list", "watch", "delete" ]

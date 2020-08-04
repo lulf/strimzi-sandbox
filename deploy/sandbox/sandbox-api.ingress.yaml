@@ -8,7 +8,7 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: api.sandbox.enmasse.io 
+  - host: api.strimzi-sandbox.enmasse.io 
     http:
       paths:
       - backend:
@@ -17,5 +17,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - api.sandbox.enmasse.io
+      - api.strimzi-sandbox.enmasse.io
     secretName: api-cert

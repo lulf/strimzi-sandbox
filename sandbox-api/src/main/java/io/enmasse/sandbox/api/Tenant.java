@@ -4,18 +4,19 @@
  */
 package io.enmasse.sandbox.api;
 
+import java.util.List;
+
 public class Tenant {
     private String name;
     private String subject;
     private String creationTimestamp;
     private String provisionTimestamp;
     private String expirationTimestamp;
-    private String consoleUrl;
-    private String messagingUrl;
-    private String messagingWssUrl;
     private String namespace;
     private Integer placeInQueue;
     private String estimatedProvisionTime;
+    private String bootstrap;
+    private List<String> brokers;
 
     public String getName() {
         return name;
@@ -57,22 +58,6 @@ public class Tenant {
         this.expirationTimestamp = expirationTimestamp;
     }
 
-    public String getConsoleUrl() {
-        return consoleUrl;
-    }
-
-    public void setConsoleUrl(String consoleUrl) {
-        this.consoleUrl = consoleUrl;
-    }
-
-    public String getMessagingUrl() {
-        return messagingUrl;
-    }
-
-    public void setMessagingUrl(String messagingUrl) {
-        this.messagingUrl = messagingUrl;
-    }
-
     public String getNamespace() {
         return namespace;
     }
@@ -97,11 +82,19 @@ public class Tenant {
         this.placeInQueue = placeInQueue;
     }
 
-    public String getMessagingWssUrl() {
-        return messagingWssUrl;
+    public String getBootstrap() {
+        return bootstrap;
     }
 
-    public void setMessagingWssUrl(String messagingWssUrl) {
-        this.messagingWssUrl = messagingWssUrl;
+    public void setBootstrap(String bootstrap) {
+        this.bootstrap = bootstrap;
+    }
+
+    public List<String> getBrokers() {
+        return brokers;
+    }
+
+    public void setBrokers(List<String> brokers) {
+        this.brokers = brokers;
     }
 }

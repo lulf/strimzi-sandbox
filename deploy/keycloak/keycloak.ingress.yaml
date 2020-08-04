@@ -12,7 +12,7 @@ metadata:
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: auth.sandbox.enmasse.io 
+  - host: auth.strimzi-sandbox.enmasse.io 
     http:
       paths:
       - backend:
@@ -21,5 +21,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - auth.sandbox.enmasse.io
+      - auth.strimzi-sandbox.enmasse.io
     secretName: keycloak-cert

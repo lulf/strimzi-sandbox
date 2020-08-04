@@ -16,7 +16,6 @@ import io.quarkus.security.UnauthorizedException;
 import io.quarkus.security.identity.SecurityIdentity;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
@@ -31,6 +30,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -99,17 +99,14 @@ public class TenantResource {
             if (sandboxTenant.getStatus().getExpirationTimestamp() != null) {
                 tenant.setExpirationTimestamp(sandboxTenant.getStatus().getExpirationTimestamp());
             }
-            if (sandboxTenant.getStatus().getConsoleUrl() != null) {
-                tenant.setConsoleUrl(sandboxTenant.getStatus().getConsoleUrl());
-            }
-            if (sandboxTenant.getStatus().getMessagingUrl() != null) {
-                tenant.setMessagingUrl(sandboxTenant.getStatus().getMessagingUrl());
-            }
             if (sandboxTenant.getStatus().getNamespace() != null) {
                 tenant.setNamespace(sandboxTenant.getStatus().getNamespace());
             }
-            if (sandboxTenant.getStatus().getMessagingWssUrl() != null) {
-                tenant.setMessagingWssUrl(sandboxTenant.getStatus().getMessagingWssUrl());
+            if (sandboxTenant.getStatus().getBootstrap() != null) {
+                tenant.setBootstrap(sandboxTenant.getStatus().getBootstrap());
+            }
+            if (sandboxTenant.getStatus().getBrokers() != null) {
+                tenant.setBrokers(new ArrayList<>(sandboxTenant.getStatus().getBrokers()));
             }
         } else {
             setEstimates(tenant, tenants);
@@ -161,7 +158,7 @@ public class TenantResource {
     @ConfigProperty(name = "keycloak.realm.admin.password")
     String adminPassword;
 
-    @ConfigProperty(name = "keycloak.url", defaultValue = "https://auth.sandbox.enmasse.io/auth")
+    @ConfigProperty(name = "keycloak.url", defaultValue = "https://auth.strimzi-sandbox.enmasse.io/auth")
     String keycloakUrl;
 
     @ConfigProperty(name = "keycloak.realm", defaultValue = "k8s")

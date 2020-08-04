@@ -8,6 +8,8 @@ import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
 import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinitionBuilder;
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext;
 import io.fabric8.kubernetes.internal.KubernetesDeserializer;
+import io.strimzi.api.kafka.model.Kafka;
+import io.strimzi.api.kafka.model.KafkaUser;
 
 public class CustomResources {
     private CustomResources() {}
@@ -19,13 +21,21 @@ public class CustomResources {
             .withPlural("sandboxtenants")
             .withName("SandboxTenant")
             .build();
+
+    private static final CustomResourceDefinitionContext kafkaUserCrdContext = new CustomResourceDefinitionContext.Builder()
+            .withGroup("kafka.strimzi.io")
+            .withScope("Namespaced")
+            .withVersion("v1beta1")
+            .withPlural("kafkausers")
+            .withName("KafkaUser")
+            .build();
     private static final CustomResourceDefinition sandboxCrd = createCustomResource(sandboxCrdContext.getGroup(), sandboxCrdContext.getVersion(), sandboxCrdContext.getName());
-    private static final CustomResourceDefinition addressSpaceCrd = createCustomResource("enmasse.io", "v1beta1", "AddressSpace");
+    private static final CustomResourceDefinition kafkaUserCrd = createCustomResource(kafkaUserCrdContext.getGroup(), kafkaUserCrdContext.getVersion(), kafkaUserCrdContext.getName());
     static {
         KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenant", SandboxTenant.class);
         KubernetesDeserializer.registerCustomKind("sandbox.enmasse.io/v1beta1", "SandboxTenantList", SandboxTenantList.class);
-        KubernetesDeserializer.registerCustomKind("enmasse.io/v1beta1", "AddressSpace", AddressSpace.class);
-        KubernetesDeserializer.registerCustomKind("enmasse.io/v1beta1", "AddressSpaceList", AddressSpaceList.class);
+        KubernetesDeserializer.registerCustomKind("kafka.strimzi.io/v1beta1", "Kafka", Kafka.class);
+        KubernetesDeserializer.registerCustomKind("kafka.strimzi.io/v1beta1", "KafkaUser", KafkaUser.class);
     }
 
     public static CustomResourceDefinitionContext getSandboxCrdContext() {
@@ -36,8 +46,8 @@ public class CustomResources {
         return sandboxCrd;
     }
 
-    public static CustomResourceDefinition getAddressSpaceCrd() {
-        return addressSpaceCrd;
+    public static CustomResourceDefinition getKafkaUserCrd() {
+        return kafkaUserCrd;
     }
 
     private static CustomResourceDefinition createCustomResource(final String group, final String version, final String kind) {
