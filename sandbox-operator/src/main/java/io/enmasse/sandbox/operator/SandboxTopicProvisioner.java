@@ -113,7 +113,7 @@ public class SandboxTopicProvisioner {
                     break;
                 }
             }
-            if (!found) {
+            if (found) {
                 log.info("Deleting topic {}/{}", existing.getMetadata().getNamespace(), existing.getMetadata().getName());
                 op.inNamespace(strimziInfra).withName(existing.getMetadata().getName()).delete();
             }
