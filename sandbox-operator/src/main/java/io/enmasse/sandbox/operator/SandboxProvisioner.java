@@ -130,8 +130,8 @@ public class SandboxProvisioner {
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
             status.setNamespace(ns);
-            status.setBootstrap("bootstrap.strimzi-sandbox.enmasse.io");
-            status.setBrokers(Collections.singletonList("broker-0.strimzi-sandbox.enmasse.io"));
+            status.setBootstrap("bootstrap.strimzi-sandbox.enmasse.io:443");
+            status.setBrokers(Collections.singletonList("broker-0.strimzi-sandbox.enmasse.io:443"));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 
