@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: kafka
+  namespace: strimzi-infra
+  labels:
+    app: strimzi-infra
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+    kubernetes.io/tls-acme: "true" 
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+spec:
+  rules:
+  - host: dummy.strimzi-sandbox.enmasse.io 
+    http:
+      paths:
+      - backend:
+          serviceName: sandbox-kafka-0
+          servicePort: 9094
+        path: /
+  tls:
+  - hosts:
+      - broker-0.strimzi-sandbox.enmasse.io
+      - bootstrap.strimzi-sandbox.enmasse.io
+    secretName: kafka-cert
