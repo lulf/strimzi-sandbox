@@ -269,7 +269,7 @@ public class SandboxProvisioner {
                 .withNamespace(namespace)
                 .endMetadata()
                 .editOrNewSpec()
-                .addToHard("count/kafkatopics.strimzi.io", new Quantity("2"))
+                .addToHard("count/kafkatopics.kafka.strimzi.io", new Quantity("2"))
                 .endSpec()
                 .done();
     }
