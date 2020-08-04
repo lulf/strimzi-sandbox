@@ -9,12 +9,11 @@ class Features extends Component {
   render() {
       return (
             <div>
-              <h3>Supported features</h3>
+              <h3>Features</h3>
               <ul>
               <li>A <b>single</b> shared Kafka cluster.</li>
               <li>Up to 2 topics.</li>
-              <li>OAuth 2.0 authentication of clients.</li>
-              <li>TLS</li>
+              <li>TLS required</li>
               </ul>
         </div>);
   }

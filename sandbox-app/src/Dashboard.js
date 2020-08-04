@@ -135,6 +135,7 @@ class Dashboard extends Component {
                         var kubeconfig = generateKubeConfig(this.state.keycloak, this.state.tenant.subject, this.state.tenant.namespace);
                         var bootstrapHostname = this.state.tenant.bootstrap;
                         var brokerHostnames = JSON.stringify(this.state.tenant.brokers);
+                        var topicPrefix = this.state.tenant.namespace + ".";
                         return (
                             <div className="App">
                                 <h3>Status</h3>
@@ -147,9 +148,11 @@ class Dashboard extends Component {
                                 <tr><td>Expires at</td><td>{expireDateStr} (In {expireDays} days and {expireHours} hours)</td></tr>
                                 <tr><td>Bootstrap Hostname</td><td>{bootstrapHostname}</td></tr>
                                 <tr><td>Broker Hostname(s)</td><td>{brokerHostnames}</td></tr>
+                                <tr><td>Topic prefix</td><td>{topicPrefix}</td></tr>
                                 <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
                                 </tbody>
                                 </table>
+                                <p>NOTE: All topics that you create must be prefixed with the topic prefix.</p>
                                 <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
                                 <br />
 
