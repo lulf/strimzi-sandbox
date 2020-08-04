@@ -2,7 +2,7 @@ global:
   resolve_timeout: 5m
   smtp_smarthost: 'smtp.gmail.com:587'
   smtp_auth_username: 'ulf.lilleengen@gmail.com'
-  smtp_from: 'EnMasse Sandbox Alerts <alerts@sandbox.enmasse.io>'
+  smtp_from: 'Strimzi Sandbox Alerts <alerts@sandbox.enmasse.io>'
 route:
   group_by: ['job']
   group_wait: 2m

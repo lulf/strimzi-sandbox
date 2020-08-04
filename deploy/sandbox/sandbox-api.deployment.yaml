@@ -18,7 +18,7 @@ spec:
       serviceAccountName: sandbox-api
       containers:
       - name: api
-        image: quay.io/enmasse/sandbox-api:latest
+        image: docker.io/lulf/strimzi-sandbox-api:latest
         ports:
           - name: http
             protocol: TCP
@@ -42,7 +42,7 @@ spec:
         - name: QUARKUS_HTTP_CORS
           value: "true"
         - name: QUARKUS_HTTP_CORS_ORIGINS
-          value: "http://localhost:3000,https://sandbox.enmasse.io,https://api.sandbox.enmasse.io"
+          value: "http://localhost:3000,https://strimzi-sandbox.enmasse.io,https://api.strimzi-sandbox.enmasse.io"
         - name: ENMASSE_SANDBOX_EXPIRATION_TIME
           valueFrom:
             configMapKeyRef:

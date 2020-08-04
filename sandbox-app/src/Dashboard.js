@@ -158,8 +158,6 @@ class Dashboard extends Component {
                                 </div>
                             </div>
                         );
-                        }
-                        
                     } else {
                         var queueNum = this.state.tenant.placeInQueue;
                         if (queueNum !== undefined) {

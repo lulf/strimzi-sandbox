@@ -18,7 +18,7 @@ spec:
       serviceAccountName: sandbox-operator
       containers:
       - name: operator
-        image: quay.io/enmasse/sandbox-operator:latest
+        image: docker.io/lulf/strimzi-sandbox-operator:latest
         imagePullPolicy: Always
         ports:
           - name: http

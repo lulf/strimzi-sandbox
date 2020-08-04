@@ -9,7 +9,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true" 
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
 spec:
   rules:
   - host: auth.strimzi-sandbox.enmasse.io 

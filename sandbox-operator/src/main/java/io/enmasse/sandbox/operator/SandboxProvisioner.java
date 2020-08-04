@@ -15,6 +15,14 @@ import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.scheduler.Scheduled;
+import io.strimzi.api.kafka.KafkaTopicList;
+import io.strimzi.api.kafka.KafkaUserList;
+import io.strimzi.api.kafka.model.DoneableKafkaTopic;
+import io.strimzi.api.kafka.model.DoneableKafkaUser;
+import io.strimzi.api.kafka.model.KafkaTopic;
+import io.strimzi.api.kafka.model.KafkaUser;
+import io.strimzi.api.kafka.model.KafkaUserAuthentication;
+import io.strimzi.api.kafka.model.KafkaUserTlsClientAuthenticationBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
@@ -39,10 +47,12 @@ import java.util.stream.Collectors;
 public class SandboxProvisioner {
     private static final Logger log = LoggerFactory.getLogger(SandboxProvisioner.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
-    private static final String enmasseNamespace = "enmasse-infra";
 
     @Inject
     KubernetesClient kubernetesClient;
+
+    @ConfigProperty(name = "enmasse.sandbox.strimzi-infra", defaultValue = "strimzi-infra")
+    String strimziInfra;
 
     @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "3")
     int maxTenants;
@@ -125,6 +135,30 @@ public class SandboxProvisioner {
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
 
+            /*
+            MixedOperation<KafkaUser, KafkaUserList, DoneableKafkaUser, Resource<KafkaUser, DoneableKafkaUser>> userOp = kubernetesClient.customResources(CustomResources.getKafkaUserCrd(), KafkaUser.class, KafkaUserList.class, DoneableKafkaUser.class);
+            userOp.inNamespace(strimziInfra).createNew()
+                    .editOrNewMetadata()
+                    .withName(ns)
+                    .withNamespace(strimziInfra)
+                    .endMetadata()
+                    .editOrNewSpec()
+                    .withAutho
+                    .withNewKafkaUserScramSha512ClientAuthentication()
+                    .endKafkaUserScramSha512ClientAuthentication()
+                    .buildAuthentication()
+                    .wi
+                    .withAuthentication(new KafkaUserAuthentication() {
+                        @Override
+                        public String getType() {
+                            return null;
+                        }
+                    }
+                    .endSpec()
+                    .done();
+            List<KafkaUser> infraTopics = op.inNamespace().list().getItems();
+             */
+
             numProvisioned++;
         }
 
@@ -135,21 +169,9 @@ public class SandboxProvisioner {
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
-                kubernetesClient.extensions().ingresses()
-                        .inNamespace(enmasseNamespace)
-                        .withName(ns)
-                        .cascading(true)
-                        .delete();
                 op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
             }
         }
-
-        // Remove ingress resources not part of current set of tenants
-        String[] currentTenants = tenantsByCreationTime.stream().map(this::getNamespace).toArray(String[]::new);
-        kubernetesClient.extensions().ingresses()
-                .inNamespace(enmasseNamespace)
-                .withLabels(Map.of("app", "sandbox.enmasse.io"))
-                .withLabelNotIn("tenant", currentTenants).delete();
     }
 
     private String getNamespace(SandboxTenant obj) {

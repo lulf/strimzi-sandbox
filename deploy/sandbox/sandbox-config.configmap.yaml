@@ -6,4 +6,4 @@ metadata:
 data:
   expirationTime: "48h"
   maxTenants: "3"
-  certIssuer: "letsencrypt-prod"
+  certIssuer: "letsencrypt-prod-dns"
