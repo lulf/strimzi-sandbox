@@ -10,6 +10,10 @@ import TermsOfService from './TermsOfService.js';
 import Features from './Features.js';
 import { API_URL } from './constants';
 
+var generateClientConfig = function(tenant) {
+  return 'security.protocol=SSL';
+}
+
 var generateKubeConfig = function(kc, user, tenantNamespace) {
     return {
         apiVersion: "v1",
@@ -133,6 +137,7 @@ class Dashboard extends Component {
                         var expireDays = Math.floor(timeUntilDeletion / (3600 * 24));
                         var expireHours = Math.floor(timeUntilDeletion % (3600 * 24) / 3600);
                         var kubeconfig = generateKubeConfig(this.state.keycloak, this.state.tenant.subject, this.state.tenant.namespace);
+                        var clientconfig = generateClientConfig(this.state.tenant);
                         var bootstrapHostname = this.state.tenant.bootstrap;
                         var brokerHostnames = JSON.stringify(this.state.tenant.brokers);
                         var topicPrefix = this.state.tenant.namespace;
@@ -140,6 +145,7 @@ class Dashboard extends Component {
                             <div className="App">
                                 <h3>Status</h3>
                                 <input id="download" type="hidden" value={JSON.stringify(kubeconfig)} />
+                                <input id="downloadclient" type="hidden" value={clientconfig} />
                                 <table>
                                 <tbody>
                                 <tr><td>Logged in as</td><td>{this.state.tenant.subject}</td></tr>
@@ -149,13 +155,40 @@ class Dashboard extends Component {
                                 <tr><td>Bootstrap Hostname</td><td>{bootstrapHostname}</td></tr>
                                 <tr><td>Broker Hostname(s)</td><td>{brokerHostnames}</td></tr>
                                 <tr><td>Namespace</td><td>{topicPrefix}</td></tr>
-                                <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download</button></td></tr>
+                                <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download Kubeconfig</button></td></tr>
+                                <tr><td>Client config</td><td><button onClick={this.downloadClientConfig}>Download Client Properties</button></td></tr>
                                 </tbody>
                                 </table>
-                                <p>NOTE: Kafka clients need to prefix all topics with the above topic namespace. If you created a topic &quot;mytopic&quot; using kubectl, then your clients should use &quot;{topicPrefix}.mytopic&quot;.</p>
+                                <div>
+                                <h3>Usage</h3>
+                                <h4>Creating topics</h4>
+                                <pre>
+                                cat&lt;&lt;EOF | KUBECONFIG=strimzi-sandbox-kubeconfig.yaml kubectl apply -n {topicPrefix} -f -<br />
+                                apiVersion: kafka.strimzi.io/v1beta1<br />
+                                kind: KafkaTopic<br />
+                                metadata:<br />
+                                &nbsp;&nbsp;name: mytopic<br />
+                                &nbsp;&nbsp;namespace: {topicPrefix}<br />
+                                spec:<br />
+                                &nbsp;&nbsp;partitions: 1<br />
+                                &nbsp;&nbsp;replicas: 1<br />
+                                EOF
+                                </pre>
+                                <h4>Producing and consuming messages</h4>
+                                <p>To produce and consume messages, download <a href="https://kafka.apache.org/downloads">Kafka</a> to get the client tools.</p>
+                                <h5>Producing messages</h5>
+                                <pre>
+                                kafka-console-producer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --producer.config client-config.properties
+                                </pre>
+                                <h5>Consuming messages</h5>
+                                <pre>
+                                kafka-console-consumer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --from-beginning --consumer.config client-config.properties
+                                </pre>
+
+                                </div>
+                                <p>NOTE: Kafka clients need to prefix all topics with the above topic namespace. If you created a topic <code>mytopic</code> using kubectl, then your clients should use <code>{topicPrefix}.mytopic</code>.</p>
                                 <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
                                 <br />
-
                                 <div>
                                 <NavLink className="linkBlack" to="/unregister">Delete registration</NavLink>
                                 </div>
@@ -238,6 +271,15 @@ class Dashboard extends Component {
                 </div>
         );
     }
+
+    downloadClientConfig = () => {
+        const element = document.createElement("a");
+        const file = new Blob([document.getElementById('downloadclient').value], {type: "text/plain"});
+        element.href = URL.createObjectURL(file);
+        element.download = "client-config.properties";
+        document.body.appendChild(element);
+        element.click();
+    };
 
     downloadKubeconfig = () => {
         const element = document.createElement("a");
