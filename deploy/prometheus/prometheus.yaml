@@ -26,6 +26,8 @@ spec:
   serviceAccountName: prometheus
   serviceMonitorNamespaceSelector: {}
   serviceMonitorSelector: {}
+  podMonitorSelector: {}
+  podMonitorNamespaceSelector: {}
   ruleNamespaceSelector: {}
   ruleSelector: {}
   alerting:

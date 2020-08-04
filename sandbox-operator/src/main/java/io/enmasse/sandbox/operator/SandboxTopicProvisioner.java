@@ -63,11 +63,13 @@ public class SandboxTopicProvisioner {
                 .filter(t -> !strimziInfra.equals(t.getMetadata().getNamespace())).collect(Collectors.toList());
     }
 
-    @Scheduled(every = "30s")
+    @Scheduled(every = "10s")
     public synchronized void processTopics() {
         List<KafkaTopic> topics = new ArrayList<>(currentTopics);
         MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrd(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
-        List<KafkaTopic> infraTopics = op.inNamespace(strimziInfra).list().getItems();
+        List<KafkaTopic> infraTopics = op.inNamespace(strimziInfra).list().getItems().stream()
+                .filter(t -> t.getMetadata().getName().startsWith("tenant-"))
+                .collect(Collectors.toList());
 
         log.info("Syncing topics. Have {} infra topics, {} tenant topics", infraTopics.size(), topics.size());
         for (KafkaTopic topic : topics) {
