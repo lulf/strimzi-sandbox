@@ -4,13 +4,7 @@
  */
 package io.enmasse.sandbox.operator;
 
-import com.google.common.hash.Hashing;
 import io.enmasse.sandbox.model.CustomResources;
-import io.enmasse.sandbox.model.DoneableSandboxTenant;
-import io.enmasse.sandbox.model.SandboxTenant;
-import io.enmasse.sandbox.model.SandboxTenantList;
-import io.enmasse.sandbox.model.SandboxTenantStatus;
-import io.fabric8.kubernetes.api.model.Quantity;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
@@ -21,23 +15,13 @@ import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.api.kafka.model.KafkaTopicBuilder;
 import io.strimzi.api.kafka.model.KafkaTopicSpec;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.eclipse.microprofile.metrics.MetricUnits;
-import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -56,15 +40,21 @@ public class SandboxTopicProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.kafka-cluster", defaultValue = "sandbox")
     String kafkaCluster;
 
+    private volatile boolean initialized = false;
+
     @Scheduled(every = "1m")
-    public void refreshTopics() {
+    public synchronized void refreshTopics() {
         MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrd(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
         currentTopics = op.inAnyNamespace().list().getItems().stream()
                 .filter(t -> !strimziInfra.equals(t.getMetadata().getNamespace())).collect(Collectors.toList());
+        initialized = true;
     }
 
     @Scheduled(every = "10s")
     public synchronized void processTopics() {
+        if (!initialized) {
+            return;
+        }
         List<KafkaTopic> topics = new ArrayList<>(currentTopics);
         MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrd(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
         List<KafkaTopic> infraTopics = op.inNamespace(strimziInfra).list().getItems().stream()

@@ -11,6 +11,8 @@ import io.enmasse.sandbox.model.SandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenantList;
 import io.enmasse.sandbox.model.SandboxTenantStatus;
 import io.fabric8.kubernetes.api.model.Quantity;
+import io.fabric8.kubernetes.api.model.admission.AdmissionReview;
+import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfiguration;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
