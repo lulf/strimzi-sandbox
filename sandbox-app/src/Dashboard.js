@@ -155,12 +155,16 @@ class Dashboard extends Component {
                                 <tr><td>Bootstrap Hostname</td><td>{bootstrapHostname}</td></tr>
                                 <tr><td>Broker Hostname(s)</td><td>{brokerHostnames}</td></tr>
                                 <tr><td>Namespace</td><td>{topicPrefix}</td></tr>
-                                <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Download Kubeconfig</button></td></tr>
-                                <tr><td>Client config</td><td><button onClick={this.downloadClientConfig}>Download Client Properties</button></td></tr>
+                                <tr><td>Kubeconfig</td><td><button onClick={this.downloadKubeconfig}>Generate</button></td></tr>
+                                <tr><td>Kafka client properties</td><td><button onClick={this.downloadClientConfig}>Generate</button></td></tr>
                                 </tbody>
                                 </table>
                                 <div>
                                 <h3>Usage</h3>
+                                <ul>
+                                <li>Download <a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/">kubectl</a> to create and manage topics.</li>
+                                <li>(Optional) Download <a href="https://kafka.apache.org/downloads">Kafka</a> to get the client tools for producing and consuming messages.</li>
+                                </ul>
                                 <h4>Creating topics</h4>
                                 <pre>
                                 cat&lt;&lt;EOF | KUBECONFIG=strimzi-sandbox-kubeconfig.yaml kubectl apply -n {topicPrefix} -f -<br />
@@ -174,18 +178,16 @@ class Dashboard extends Component {
                                 &nbsp;&nbsp;replicas: 1<br />
                                 EOF
                                 </pre>
-                                <h4>Producing and consuming messages</h4>
-                                <p>To produce and consume messages, download <a href="https://kafka.apache.org/downloads">Kafka</a> to get the client tools.</p>
-                                <h5>Producing messages</h5>
+                                <h4>Producing messages</h4>
                                 <pre>
                                 kafka-console-producer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --producer.config client-config.properties
                                 </pre>
-                                <h5>Consuming messages</h5>
+                                <h4>Consuming messages</h4>
                                 <pre>
                                 kafka-console-consumer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --from-beginning --consumer.config client-config.properties
                                 </pre>
-
                                 </div>
+
                                 <p>NOTE: Kafka clients need to prefix all topics with the above topic namespace. If you created a topic <code>mytopic</code> using kubectl, then your clients should use <code>{topicPrefix}.mytopic</code>.</p>
                                 <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
                                 <br />
