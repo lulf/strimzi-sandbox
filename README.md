@@ -1,7 +1,7 @@
-# sandbox.enmasse.io
+# Strimzi Sandbox
 
-The EnMasse Sandbox is a service for trying out EnMasse and showing how it works. It is geared
-towards the use case of granting secure, temporary access to an instance of EnMasse.
+The Strimzi Sandbox is a service for trying out Strimzi and showing how it works. It is geared
+towards the use case of granting secure, temporary access to an instance of Kafka using Strimzi.
 
 This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
