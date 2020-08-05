@@ -54,7 +54,7 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.strimzi-infra", defaultValue = "strimzi-infra")
     String strimziInfra;
 
-    @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "3")
+    @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "10")
     int maxTenants;
 
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
