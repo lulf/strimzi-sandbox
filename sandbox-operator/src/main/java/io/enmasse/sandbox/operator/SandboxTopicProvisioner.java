@@ -95,7 +95,7 @@ public class SandboxTopicProvisioner {
                 }
 
                 if (infraTopic.getSpec() != null && !infraTopic.getSpec().equals(topic.getSpec())) {
-                    topic.setStatus(infraTopic.getStatus());
+                    topic.setSpec(infraTopic.getSpec());
                     op.inNamespace(topic.getMetadata().getNamespace()).createOrReplace(topic);
                 }
             }
