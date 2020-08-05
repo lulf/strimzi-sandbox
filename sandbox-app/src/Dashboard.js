@@ -188,7 +188,7 @@ class Dashboard extends Component {
                                 </pre>
                                 </div>
 
-                                <p>NOTE: Kafka clients need to prefix all topics with the above topic namespace. If you created a topic <code>mytopic</code> using kubectl, then your clients should use <code>{topicPrefix}.mytopic</code>.</p>
+                                <p><b>NOTE</b>: Kafka clients need to <b>prefix all topics</b> with the above topic namespace. If you created a topic <code>mytopic</code> using kubectl, then your clients should use <code>{topicPrefix}.mytopic</code>.</p>
                                 <p>For more information about how to use Strimzi, see the <a href="https://strimzi.io/documentation/">documentation</a>.</p>
                                 <br />
                                 <div>
