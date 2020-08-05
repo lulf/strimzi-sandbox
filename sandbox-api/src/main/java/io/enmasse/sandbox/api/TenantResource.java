@@ -49,6 +49,9 @@ public class TenantResource {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
+    @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "3")
+    int maxTenants;
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Timed(name = "tenant_create_latency_seconds", unit = MetricUnits.SECONDS, description = "A measure of how long it takes to create a tenant.")
@@ -126,26 +129,28 @@ public class TenantResource {
         // Locate starting point - either now - or the last expiring tenant.
         LocalDateTime start = LocalDateTime.now(ZoneId.of("UTC"));
         int placeInQueue = 1;
-        if (!tenantsByExpiration.isEmpty()) {
-            SandboxTenant lastExpiringTenant = tenantsByExpiration.get(tenantsByExpiration.size() - 1);
-            start = LocalDateTime.from(dateTimeFormatter.parse(lastExpiringTenant.getStatus().getExpirationTimestamp()));
-        }
-
-        // Iterate over everone before us in the queue and increment estimate
-        List<SandboxTenant> unprovisionedByCreationTime = tenants.stream()
-                .filter(sandboxTenant -> sandboxTenant.getStatus() == null || sandboxTenant.getStatus().getProvisionTimestamp() == null)
-                .sorted((a, b) -> {
-                    LocalDateTime dateA = LocalDateTime.from(dateTimeFormatter.parse(a.getMetadata().getCreationTimestamp()));
-                    LocalDateTime dateB = LocalDateTime.from(dateTimeFormatter.parse(b.getMetadata().getCreationTimestamp()));
-                    return dateA.compareTo(dateB);
-                }).collect(Collectors.toList());
-
-        for (SandboxTenant unprovisioned : unprovisionedByCreationTime) {
-            if (unprovisioned.getMetadata().getName().equals(tenant.getName())) {
-                break;
+        if (tenantsByExpiration.size() >= maxTenants) {
+            if (!tenantsByExpiration.isEmpty()) {
+                SandboxTenant lastExpiringTenant = tenantsByExpiration.get(tenantsByExpiration.size() - 1);
+                start = LocalDateTime.from(dateTimeFormatter.parse(lastExpiringTenant.getStatus().getExpirationTimestamp()));
             }
-            start.plus(expirationTime);
-            placeInQueue++;
+
+            // Iterate over everone before us in the queue and increment estimate
+            List<SandboxTenant> unprovisionedByCreationTime = tenants.stream()
+                    .filter(sandboxTenant -> sandboxTenant.getStatus() == null || sandboxTenant.getStatus().getProvisionTimestamp() == null)
+                    .sorted((a, b) -> {
+                        LocalDateTime dateA = LocalDateTime.from(dateTimeFormatter.parse(a.getMetadata().getCreationTimestamp()));
+                        LocalDateTime dateB = LocalDateTime.from(dateTimeFormatter.parse(b.getMetadata().getCreationTimestamp()));
+                        return dateA.compareTo(dateB);
+                    }).collect(Collectors.toList());
+
+            for (SandboxTenant unprovisioned : unprovisionedByCreationTime) {
+                if (unprovisioned.getMetadata().getName().equals(tenant.getName())) {
+                    break;
+                }
+                start.plus(expirationTime);
+                placeInQueue++;
+            }
         }
 
         tenant.setPlaceInQueue(placeInQueue);
