@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -ex
 
-podman login -u $REGISTRY_USER -p $REGISTRY_PASS $IMAGE_REGISTRY
-podman tag sandbox-app:latest $IMAGE_REGISTRY/enmasse/sandbox-app:latest
-podman tag sandbox-api:latest $IMAGE_REGISTRY/enmasse/sandbox-api:latest
-podman tag sandbox-operator:latest $IMAGE_REGISTRY/enmasse/sandbox-operator:latest
+echo "$REGISTRY_PASS" | docker login -u $REGISTRY_USER --password-stdin
+docker tag sandbox-app:latest $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-app:latest
+docker tag sandbox-api:latest $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-api:latest
+docker tag sandbox-operator:latest $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-operator:latest
 
-podman push $IMAGE_REGISTRY/enmasse/sandbox-app:latest
-podman push $IMAGE_REGISTRY/enmasse/sandbox-api:latest
-podman push $IMAGE_REGISTRY/enmasse/sandbox-operator:latest
+docker push $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-app:latest
+docker push $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-api:latest
+docker push $IMAGE_REGISTRY/$IMAGE_ORG/strimzi-sandbox-operator:latest
