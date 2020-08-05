@@ -88,10 +88,15 @@ public class SandboxTopicProvisioner {
                 log.info("Creating topic {}/{}", newTopic.getMetadata().getNamespace(), newTopic.getMetadata().getName());
                 op.inNamespace(strimziInfra).createOrReplace(newTopic);
             } else {
-                // Sync back status
+                // Sync back status and spec
                 if (infraTopic.getStatus() != null && !infraTopic.getStatus().equals(topic.getStatus())) {
                     topic.setStatus(infraTopic.getStatus());
                     op.inNamespace(topic.getMetadata().getNamespace()).updateStatus(topic);
+                }
+
+                if (infraTopic.getSpec() != null && !infraTopic.getSpec().equals(topic.getSpec())) {
+                    topic.setStatus(infraTopic.getStatus());
+                    op.inNamespace(topic.getMetadata().getNamespace()).createOrReplace(topic);
                 }
             }
         }
