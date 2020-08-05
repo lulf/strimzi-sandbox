@@ -99,7 +99,7 @@ public class SandboxTopicProvisioner {
                 op.inNamespace(strimziInfra).createOrReplace(newTopic);
             } else {
                 // Sync back status
-                if (topic.getStatus() != null && !topic.getStatus().equals(infraTopic.getStatus())) {
+                if (infraTopic.getStatus() != null && !infraTopic.getStatus().equals(topic.getStatus())) {
                     topic.setStatus(infraTopic.getStatus());
                     op.inNamespace(topic.getMetadata().getNamespace()).updateStatus(topic);
                 }
