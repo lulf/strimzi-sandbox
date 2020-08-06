@@ -20,6 +20,9 @@ class Header extends Component {
             <p>
               For more information about Strimzi, go to <a href="https://strimzi.io/">strimzi.io</a>.
             </p>
+            <p>
+              The source code for this service can be found at <a href="https://github.com/lulf/strimzi-sandbox">GitHub</a>.
+            </p>
         </div>);
   }
 };
