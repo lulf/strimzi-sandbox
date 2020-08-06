@@ -9,7 +9,19 @@ spec:
   groups:
   - name: SandboxHealth 
     rules:
-    - record: sandbox_component_health
+    - record: sandbox_api_health
       expr: up{job="sandbox-api"} or on(namespace) (1- absent(up{job="sandbox-api"}))
-    - record: sandbox_component_health
+    - record: sandbox_operator_health
       expr: up{job="sandbox-operator"} or on(namespace) (1- absent(up{job="sandbox-operator"}))
+    - alert: SandboxApi
+      annotations:
+        description: "Sandbox API is down"
+        severity: critical
+      expr: sandbox_api_health == 0
+      for: 300s
+    - alert: SandboxOperator
+      annotations:
+        description: "Sandbox operator is down"
+        severity: critical
+      expr: sandbox_operator_health == 0
+      for: 300s
