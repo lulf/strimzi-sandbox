@@ -12,7 +12,7 @@ class Header extends Component {
         <div className="App">
             <img src={logo} className="App-logo" alt="logo" />
             <p>
-                Strimzi Sandbox is a public service for developers who want to try a managed Strimzi service without having to setting up Kubernetes.
+                Strimzi Sandbox is a public service for developers who want to try a managed Kafka topic-as-a-service without having to setting up Kubernetes or manage Kafka.
             </p>
             <p>
                 You can use a <a href="https://www.github.com">GitHub</a> account to register and get a free environment for a limited time period. Once expired, all data for the environment and account data will be deleted.

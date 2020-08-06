@@ -11,9 +11,9 @@ class Features extends Component {
             <div>
               <h3>Features</h3>
               <ul>
-              <li>A <b>single</b> shared Kafka cluster.</li>
-              <li>Up to 2 topics.</li>
-              <li>TLS required</li>
+              <li>A <b>single</b> shared Kafka cluster for all tenants.</li>
+              <li>Up to 2 topics per tenant.</li>
+              <li>TLS required for Kafka clients.</li>
               </ul>
         </div>);
   }
