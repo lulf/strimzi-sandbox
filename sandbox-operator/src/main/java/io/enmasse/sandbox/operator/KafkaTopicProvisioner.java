@@ -56,6 +56,7 @@ public class KafkaTopicProvisioner implements SyncedCache.Listener {
 
         List<KafkaTopic> infraTopics = currentTopics.stream()
                 .filter(t -> strimziInfra.equals(t.getMetadata().getNamespace()))
+                .filter(t -> t.getMetadata().getName().startsWith("tenant-"))
                 .collect(Collectors.toList());
 
         MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrdContext(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
