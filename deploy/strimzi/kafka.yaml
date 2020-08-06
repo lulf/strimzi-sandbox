@@ -7,6 +7,13 @@ spec:
   kafka:
     version: 2.5.0
     replicas: 1
+    resources:
+      requests:
+        cpu: 2
+        memory: 2Gi
+      limits:
+        cpu: 2
+        memory: 2Gi
     listeners:
       external:
         type: ingress
@@ -135,6 +142,13 @@ spec:
           quantile: "0.$4"
   zookeeper:
     replicas: 3
+    resources:
+      requests:
+        cpu: 1
+        memory: 1Gi
+      limits:
+        cpu: 1
+        memory: 1Gi
     storage:
       type: ephemeral
     metrics:
