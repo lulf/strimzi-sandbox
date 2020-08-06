@@ -4,61 +4,30 @@
  */
 package io.enmasse.sandbox.operator;
 
+import io.enmasse.sandbox.model.CustomResources;
+import io.enmasse.sandbox.model.DoneableSandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenant;
-import io.fabric8.kubernetes.client.informers.ResourceEventHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.enmasse.sandbox.model.SandboxTenantList;
+import io.fabric8.kubernetes.client.KubernetesClient;
 
-import javax.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
+import javax.inject.Singleton;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
 
-@ApplicationScoped
-public class SandboxTenantCache implements ResourceEventHandler<SandboxTenant> {
-    private static final Logger log = LoggerFactory.getLogger(SandboxTenantCache.class);
+@Singleton
+public class SandboxTenantCache {
+    private final SyncedCache<SandboxTenant> cache;
 
-    private final Map<String, SandboxTenant> cache = new ConcurrentHashMap<>();
-    private final List<Listener> listeners = new ArrayList<>();
-
-    public void registerListener(Listener listener) {
-        synchronized (listeners) {
-            listeners.add(listener);
-        }
+    public SandboxTenantCache(KubernetesClient kubernetesClient, SharedInformerFactoryProvider sharedInformerFactoryProvider) {
+        this.cache = new SyncedCache<>(sharedInformerFactoryProvider.getSharedInformerFactory().sharedIndexInformerForCustomResource(CustomResources.getSandboxCrdContext(), SandboxTenant.class, SandboxTenantList.class, TimeUnit.MINUTES.toMillis(1)),
+                kubernetesClient.customResources(CustomResources.getSandboxCrdContext(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class).list().getItems());
     }
 
-    @Override
-    public void onAdd(SandboxTenant obj) {
-        log.info("Adding cache entry for tenant {}", obj.getMetadata().getName());
-        cache.put(obj.getMetadata().getName(), obj);
-        synchronized (listeners) {
-            for (Listener listener : listeners) {
-                listener.tenantAdded();
-            }
-        }
-    }
-
-
-    @Override
-    public void onUpdate(SandboxTenant oldObj, SandboxTenant newObj) {
-        log.info("Updating cache entry for tenant {}", oldObj.getMetadata().getName());
-        cache.put(newObj.getMetadata().getName(), newObj);
-    }
-
-    @Override
-    public void onDelete(SandboxTenant obj, boolean deletedFinalStateUnknown) {
-        log.info("Deleting cache entry for tenant {}", obj.getMetadata().getName());
-        cache.remove(obj.getMetadata().getName());
+    public void registerListener(SyncedCache.Listener listener) {
+        this.cache.registerListener(listener);
     }
 
     public List<SandboxTenant> list() {
-        synchronized (cache) {
-            return new ArrayList<>(cache.values());
-        }
-    }
-
-    interface Listener {
-        void tenantAdded();
+        return cache.list();
     }
 }

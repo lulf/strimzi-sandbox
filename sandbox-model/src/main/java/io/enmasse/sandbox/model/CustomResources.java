@@ -67,6 +67,10 @@ public class CustomResources {
         return kafkaUserCrd;
     }
 
+    public static CustomResourceDefinitionContext getKafkaTopicCrdContext() {
+        return kafkaTopicCrdContext;
+    }
+
     public static CustomResourceDefinition getKafkaTopicCrd() {
         return kafkaTopicCrd;
     }

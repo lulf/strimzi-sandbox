@@ -10,21 +10,12 @@ import io.enmasse.sandbox.model.DoneableSandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenant;
 import io.enmasse.sandbox.model.SandboxTenantList;
 import io.enmasse.sandbox.model.SandboxTenantStatus;
+import io.fabric8.kubernetes.api.model.DeletionPropagation;
 import io.fabric8.kubernetes.api.model.Quantity;
-import io.fabric8.kubernetes.api.model.admission.AdmissionReview;
-import io.fabric8.kubernetes.api.model.admissionregistration.v1.ValidatingWebhookConfiguration;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.scheduler.Scheduled;
-import io.strimzi.api.kafka.KafkaTopicList;
-import io.strimzi.api.kafka.KafkaUserList;
-import io.strimzi.api.kafka.model.DoneableKafkaTopic;
-import io.strimzi.api.kafka.model.DoneableKafkaUser;
-import io.strimzi.api.kafka.model.KafkaTopic;
-import io.strimzi.api.kafka.model.KafkaUser;
-import io.strimzi.api.kafka.model.KafkaUserAuthentication;
-import io.strimzi.api.kafka.model.KafkaUserTlsClientAuthenticationBuilder;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.metrics.MetricUnits;
 import org.eclipse.microprofile.metrics.annotation.Gauge;
@@ -32,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -42,19 +33,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
-public class SandboxProvisioner {
-    private static final Logger log = LoggerFactory.getLogger(SandboxProvisioner.class);
+@Singleton
+public class SandboxTenantProvisioner implements SyncedCache.Listener {
+    private static final Logger log = LoggerFactory.getLogger(SandboxTenantProvisioner.class);
     private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'").withZone(ZoneId.of("UTC"));
-
-    @Inject
-    KubernetesClient kubernetesClient;
-
-    @ConfigProperty(name = "enmasse.sandbox.strimzi-infra", defaultValue = "strimzi-infra")
-    String strimziInfra;
 
     @ConfigProperty(name = "enmasse.sandbox.maxtenants", defaultValue = "3")
     int maxTenants;
@@ -62,42 +46,31 @@ public class SandboxProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.expiration-time", defaultValue = "3h")
     Duration expirationTime;
 
-    @Gauge(name = "tenants_total", unit = MetricUnits.NONE, description = "Number of sandbox tenants registered.")
-    public Long getNumTenants() {
-        return (long) currentTenants.size();
-    }
-
-    @Gauge(name = "tenants_provisioned_total", unit = MetricUnits.NONE, description = "Number of currently provisioned sandbox tenants.")
-    public Long getNumProvisionedTenants() {
-        return (long) (int) currentTenants.stream()
-                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null && t.getStatus().getExpirationTimestamp() != null)
-                .count();
-    }
-
-    @Gauge(name = "tenants_provisioning_latency_seconds", unit = MetricUnits.SECONDS, description = "Average time from creation of tenant until it gets provisioned.")
-    public Double getAverageProvisioningTime() {
-        return currentTenants.stream()
-                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null)
-                .mapToLong(t -> {
-                    LocalDateTime creation = LocalDateTime.from(dateTimeFormatter.parse(t.getMetadata().getCreationTimestamp()));
-                    LocalDateTime provisioning = LocalDateTime.from(dateTimeFormatter.parse(t.getStatus().getProvisionTimestamp()));
-                    return Duration.between(creation, provisioning).getSeconds();
-                })
-                .average()
-                .orElse(0.0);
-    }
-
+    private final KubernetesClient kubernetesClient;
+    private final SandboxTenantCache tenantCache;
     private volatile List<SandboxTenant> currentTenants = new ArrayList<>();
+    private volatile boolean synced = false;
 
-    @Scheduled(every = "1m")
-    public void refreshTenants() {
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
-        currentTenants = new ArrayList<>(op.inAnyNamespace().list().getItems());
+    SandboxTenantProvisioner(KubernetesClient kubernetesClient, SandboxTenantCache tenantCache) {
+        this.kubernetesClient = kubernetesClient;
+        this.tenantCache = tenantCache;
+        log.info("Registering tenant cache listener");
+        tenantCache.registerListener(this);
+        log.info("Registering tenant cache listener done");
     }
 
-    @Scheduled(every = "30s")
-    public synchronized void processTenants() {
+    @Override
+    public void cacheChanged() {
+        synced = true;
+        processTenants();
+    }
 
+    @Scheduled(every = "2m")
+    public synchronized void processTenants() {
+        if (!synced) {
+            return;
+        }
+        currentTenants = new ArrayList<>(tenantCache.list());
         // Order tenants by creation time so that we provision the oldest one first
         List<SandboxTenant> tenantsByCreationTime = currentTenants.stream()
                 .sorted((a, b) -> {
@@ -106,7 +79,7 @@ public class SandboxProvisioner {
                     return dateA.compareTo(dateB);
                 }).collect(Collectors.toList());
 
-        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrd(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
+        MixedOperation<SandboxTenant, SandboxTenantList, DoneableSandboxTenant, Resource<SandboxTenant, DoneableSandboxTenant>> op = kubernetesClient.customResources(CustomResources.getSandboxCrdContext(), SandboxTenant.class, SandboxTenantList.class, DoneableSandboxTenant.class);
         log.info("Tenants by creation time {}", tenantsByCreationTime.stream().map(t -> String.format("%s:%s", t.getMetadata().getName(), t.getMetadata().getCreationTimestamp())).collect(Collectors.toList()));
 
         // Those already provisioned will be garbage-collected if they have expired
@@ -136,31 +109,6 @@ public class SandboxProvisioner {
             status.setBrokers(Collections.singletonList("broker-0.strimzi-sandbox.enmasse.io:443"));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
-
-            /*
-            MixedOperation<KafkaUser, KafkaUserList, DoneableKafkaUser, Resource<KafkaUser, DoneableKafkaUser>> userOp = kubernetesClient.customResources(CustomResources.getKafkaUserCrd(), KafkaUser.class, KafkaUserList.class, DoneableKafkaUser.class);
-            userOp.inNamespace(strimziInfra).createNew()
-                    .editOrNewMetadata()
-                    .withName(ns)
-                    .withNamespace(strimziInfra)
-                    .endMetadata()
-                    .editOrNewSpec()
-                    .withAutho
-                    .withNewKafkaUserScramSha512ClientAuthentication()
-                    .endKafkaUserScramSha512ClientAuthentication()
-                    .buildAuthentication()
-                    .wi
-                    .withAuthentication(new KafkaUserAuthentication() {
-                        @Override
-                        public String getType() {
-                            return null;
-                        }
-                    }
-                    .endSpec()
-                    .done();
-            List<KafkaUser> infraTopics = op.inNamespace().list().getItems();
-             */
-
             numProvisioned++;
         }
 
@@ -171,7 +119,7 @@ public class SandboxProvisioner {
             // Garbage collect expired tenants
             if (expiration.isBefore(now)) {
                 log.info("Deleting tenant {}", sandboxTenant.getMetadata().getName());
-                op.withName(sandboxTenant.getMetadata().getName()).cascading(true).delete();
+                op.withName(sandboxTenant.getMetadata().getName()).withPropagationPolicy(DeletionPropagation.FOREGROUND).delete();
             }
         }
     }
@@ -275,4 +223,30 @@ public class SandboxProvisioner {
                 .endSpec()
                 .done();
     }
+
+    @Gauge(name = "tenants_total", unit = MetricUnits.NONE, description = "Number of sandbox tenants registered.")
+    public Long getNumTenants() {
+        return (long) currentTenants.size();
+    }
+
+    @Gauge(name = "tenants_provisioned_total", unit = MetricUnits.NONE, description = "Number of currently provisioned sandbox tenants.")
+    public Long getNumProvisionedTenants() {
+        return (long) (int) currentTenants.stream()
+                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null && t.getStatus().getExpirationTimestamp() != null)
+                .count();
+    }
+
+    @Gauge(name = "tenants_provisioning_latency_seconds", unit = MetricUnits.SECONDS, description = "Average time from creation of tenant until it gets provisioned.")
+    public Double getAverageProvisioningTime() {
+        return currentTenants.stream()
+                .filter(t -> t.getStatus() != null && t.getStatus().getProvisionTimestamp() != null)
+                .mapToLong(t -> {
+                    LocalDateTime creation = LocalDateTime.from(dateTimeFormatter.parse(t.getMetadata().getCreationTimestamp()));
+                    LocalDateTime provisioning = LocalDateTime.from(dateTimeFormatter.parse(t.getStatus().getProvisionTimestamp()));
+                    return Duration.between(creation, provisioning).getSeconds();
+                })
+                .average()
+                .orElse(0.0);
+    }
+
 }

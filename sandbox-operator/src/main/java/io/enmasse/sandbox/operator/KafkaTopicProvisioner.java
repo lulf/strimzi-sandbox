@@ -8,31 +8,26 @@ import io.enmasse.sandbox.model.CustomResources;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.MixedOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
-import io.quarkus.scheduler.Scheduled;
 import io.strimzi.api.kafka.KafkaTopicList;
 import io.strimzi.api.kafka.model.DoneableKafkaTopic;
 import io.strimzi.api.kafka.model.KafkaTopic;
 import io.strimzi.api.kafka.model.KafkaTopicBuilder;
 import io.strimzi.api.kafka.model.KafkaTopicSpec;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.eclipse.microprofile.metrics.MetricUnits;
+import org.eclipse.microprofile.metrics.annotation.Gauge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.enterprise.context.ApplicationScoped;
-import javax.inject.Inject;
+import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@ApplicationScoped
-public class SandboxTopicProvisioner {
-    private static final Logger log = LoggerFactory.getLogger(SandboxTopicProvisioner.class);
-
-    @Inject
-    KubernetesClient kubernetesClient;
-
-    private volatile List<KafkaTopic> currentTopics = new ArrayList<>();
+@Singleton
+public class KafkaTopicProvisioner implements SyncedCache.Listener {
+    private static final Logger log = LoggerFactory.getLogger(KafkaTopicProvisioner.class);
 
     @ConfigProperty(name = "enmasse.sandbox.strimzi-infra", defaultValue = "strimzi-infra")
     String strimziInfra;
@@ -40,27 +35,30 @@ public class SandboxTopicProvisioner {
     @ConfigProperty(name = "enmasse.sandbox.kafka-cluster", defaultValue = "sandbox")
     String kafkaCluster;
 
-    private volatile boolean initialized = false;
+    private final KubernetesClient kubernetesClient;
+    private final KafkaTopicCache topicCache;
+    private volatile List<KafkaTopic> currentTopics = new ArrayList<>();
 
-    @Scheduled(every = "1m")
-    public synchronized void refreshTopics() {
-        MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrd(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
-        currentTopics = op.inAnyNamespace().list().getItems().stream()
-                .filter(t -> !strimziInfra.equals(t.getMetadata().getNamespace())).collect(Collectors.toList());
-        initialized = true;
+    KafkaTopicProvisioner(KubernetesClient kubernetesClient, KafkaTopicCache topicCache) {
+        this.kubernetesClient = kubernetesClient;
+        this.topicCache = topicCache;
+        log.info("Registering topic cache listener");
+        topicCache.registerListener(this);
+        log.info("Registering topic cache listener done");
     }
 
-    @Scheduled(every = "10s")
-    public synchronized void processTopics() {
-        if (!initialized) {
-            return;
-        }
-        List<KafkaTopic> topics = new ArrayList<>(currentTopics);
-        MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrd(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
-        List<KafkaTopic> infraTopics = op.inNamespace(strimziInfra).list().getItems().stream()
-                .filter(t -> t.getMetadata().getName().startsWith("tenant-"))
+    @Override
+    public synchronized void cacheChanged() {
+        currentTopics = topicCache.list();
+        List<KafkaTopic> topics = currentTopics.stream()
+                .filter(t -> !strimziInfra.equals(t.getMetadata().getNamespace()))
                 .collect(Collectors.toList());
 
+        List<KafkaTopic> infraTopics = currentTopics.stream()
+                .filter(t -> strimziInfra.equals(t.getMetadata().getNamespace()))
+                .collect(Collectors.toList());
+
+        MixedOperation<KafkaTopic, KafkaTopicList, DoneableKafkaTopic, Resource<KafkaTopic, DoneableKafkaTopic>> op = kubernetesClient.customResources(CustomResources.getKafkaTopicCrdContext(), KafkaTopic.class, KafkaTopicList.class, DoneableKafkaTopic.class);
         log.info("Syncing topics. Have {} infra topics, {} tenant topics", infraTopics.size(), topics.size());
         for (KafkaTopic topic : topics) {
             KafkaTopic infraTopic = null;
@@ -115,5 +113,10 @@ public class SandboxTopicProvisioner {
                 op.inNamespace(strimziInfra).delete(existing);
             }
         }
+    }
+
+    @Gauge(name = "active_topics_total", unit = MetricUnits.NONE, description = "Number of active topics registered.")
+    public long getNumActiveTopics() {
+        return currentTopics.stream().filter(t -> strimziInfra.equals(t.getMetadata().getNamespace())).count();
     }
 }
