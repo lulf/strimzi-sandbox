@@ -23,3 +23,7 @@ spec:
             containerPort: 8080
         image: docker.io/lulf/strimzi-sandbox-app:latest
         imagePullPolicy: Always
+        resources:
+          limits:
+            memory: 128Mi
+

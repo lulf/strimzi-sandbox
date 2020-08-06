@@ -9,11 +9,11 @@ spec:
     replicas: 1
     resources:
       requests:
-        cpu: 2
-        memory: 2Gi
+        cpu: 1
+        memory: 1500Mi
       limits:
-        cpu: 2
-        memory: 2Gi
+        cpu: 1
+        memory: 1500Mi
     listeners:
       external:
         type: ingress
@@ -141,7 +141,7 @@ spec:
         labels:
           quantile: "0.$4"
   zookeeper:
-    replicas: 3
+    replicas: 1
     resources:
       requests:
         cpu: 1
@@ -150,7 +150,8 @@ spec:
         cpu: 1
         memory: 1Gi
     storage:
-      type: ephemeral
+      type: persistent-claim
+      size: 10Gi
     metrics:
       # Inspired by Zookeeper rules
       # https://github.com/prometheus/jmx_exporter/blob/master/example_configs/zookeeper.yaml
@@ -192,4 +193,3 @@ spec:
         name: "zookeeper_$2"
   entityOperator:
     topicOperator: {}
-    userOperator: {}
