@@ -11,4 +11,4 @@ The service is currently hosted at https://strimzi-sandbox.enmasse.io
 
 ## Design
 
-![Sandbox Architecture](https://raw.githubusercontent.com/lulf/strimzi-sandbox/master/sandbox_architecture.png)
+![Sandbox Architecture](sandbox_architecture.png)
