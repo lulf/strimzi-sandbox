@@ -11,6 +11,8 @@ cache:
 jdk:
 - openjdk11
 script:
+- if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then .travis/setup.sh;
+  fi
 - ".travis/build.sh"
 - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then .travis/push.sh;
   fi
