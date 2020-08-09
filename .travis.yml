@@ -14,6 +14,8 @@ script:
 - ".travis/build.sh"
 - if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then .travis/push.sh;
   fi
+- if [ "$TRAVIS_BRANCH" = "master" -a "$TRAVIS_PULL_REQUEST" = "false" ]; then .travis/deploy.sh;
+  fi
 env:
   global:
   - secure: VNhbrF+nm9Iyzca65MQ5zD7JcYEe5HTRRlqO9Nix4p4bEkZRZVQHZzI6gkjgbtnmky+AXMPAA4Xxg5ctfpBm4V5LY5NMGeSyvgek7QNuzwsKnuDefhD0DOZL2zIXYNDq+iVGQVVsCe77Nmzsd02KhFtjbtzasgu1VTjT/4RO4Ck+pMBZ1beV4OfK7NlqXsQWliLohd5KkozAN4zWEpY6bjJ6UOMMsJBfsg0Pv0z36V888ylWTzctkHjEVb/p8Ryn67pVFZjHB/uExdkZF/AH2w01a4XvVG3/uAGXqUvubyLiAatZhqXDIm6CH25pnj2g5Vt5eOKTtV6gdzT4iMMQwvioUKrU30SVo6yuxyR57MLe3Av2KsJmcdd/gSlygLOq3SluYvqPdDn7PXZFLYb3Yt3Mp/LDlmI9+yDsYAghXSBvBqxjezKU+rP8n7kUGw+NTW78SyWZR98nZZtFRqbxmDQl+ovNZdQOD86+eQthYkcLsqNC76hMLm0ouwUx2SOyg1FoVDX8gJ1gz2sy0qjbNRE+bYQ5UKotBSe+Kfw5rpTMCXtWCUM5ItW4e3DdOHxsVsVqPE6Aus2OcFRm82zuiyzgOccplTU7jirhrl7PPbf7P5OAn7hJMgAUOefjDPo60VWCPRsxFWy9161ucPs0wLcE5vReDChj3Ig2nAyql9s=
