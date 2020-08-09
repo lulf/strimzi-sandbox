@@ -24,7 +24,6 @@ spec:
           - name: http
             protocol: TCP
             containerPort: 8080
-        env:
         livenessProbe:
           httpGet:
             path: /health/live
@@ -35,6 +34,7 @@ spec:
             path: /health/ready
             port: http
             scheme: HTTP
+        env:
         - name: ENMASSE_SANDBOX_EXPIRATION_TIME
           valueFrom:
             configMapKeyRef:
