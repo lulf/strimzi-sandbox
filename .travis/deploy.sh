@@ -7,6 +7,8 @@ function rollout() {
     local d=${2}
     local attempts=0
     local status_cmd="kubectl rollout status deployment/${d} -n ${n}"
+
+    kubectl rollout restart -n ${n} deployment/${d}
     until $status_cmd || [ $attempts -eq $MAX_ROLLOUT_ATTEMPTS ]; do
         $status_cmd
         attempts=$((attempts + 1))
@@ -35,9 +37,9 @@ echo "Current deployments: "
 kubectl get deployments -n sandbox
 
 echo "Starting rolling restart"
-kubectl rollout restart -n sandbox deployment/sandbox-operator
-kubectl rollout restart -n sandbox deployment/sandbox-api 
-kubectl rollout restart -n sandbox deployment/sandbox-app
-#rollout sandbox sandbox-operator
-#rollout sandbox sandbox-api
-#rollout sandbox sandbox-app
+#kubectl rollout restart -n sandbox deployment/sandbox-operator
+#kubectl rollout restart -n sandbox deployment/sandbox-api
+#kubectl rollout restart -n sandbox deployment/sandbox-app
+rollout sandbox sandbox-operator
+rollout sandbox sandbox-api
+rollout sandbox sandbox-app
