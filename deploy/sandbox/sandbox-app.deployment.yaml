@@ -4,7 +4,7 @@ metadata:
   name: sandbox-app
   namespace: sandbox
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: sandbox
@@ -21,6 +21,16 @@ spec:
         ports:
           - name: http
             containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+            scheme: HTTP
         image: docker.io/lulf/strimzi-sandbox-app:latest
         imagePullPolicy: Always
         resources:

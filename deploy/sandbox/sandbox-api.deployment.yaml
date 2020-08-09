@@ -4,7 +4,7 @@ metadata:
   name: sandbox-api
   namespace: sandbox
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: sandbox
@@ -23,6 +23,16 @@ spec:
           - name: http
             protocol: TCP
             containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /health/live
+            port: http
+            scheme: HTTP
+        readinessProbe:
+          httpGet:
+            path: /health/ready
+            port: http
+            scheme: HTTP
         env:
         - name: QUARKUS_OIDC_AUTH_SERVER_URL
           valueFrom:
