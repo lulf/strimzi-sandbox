@@ -22,7 +22,7 @@ esac
 SCRIPT_DIR=`${READLINK} -f \`dirname $0\``
 
 echo "Retrieving token"
-TOKEN=$(curl -k -s "$KEYCLOAK_URL" -d grant_type=password -d response_type=id_token -d scope=openid -d client_id="$KEYCLOAK_CLIENT_ID" -d username="$KEYCLOAK_USERNAME" -d password="$KEYCLOAK_PASSWORD")
+TOKEN=$(curl -k -s "$KEYCLOAK_URL" -d grant_type=password -d response_type=id_token -d scope=openid -d client_id="$KEYCLOAK_CLIENT_ID" -d username="$API_USER" -d password="$API_PASSWORD")
 id_token=$(echo "$TOKEN" | jq .id_token -r)
 refresh_token=$(echo "$TOKEN" | jq .refresh_token -r)
 
