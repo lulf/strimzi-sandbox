@@ -163,7 +163,7 @@ public class TenantResource {
     @ConfigProperty(name = "keycloak.realm.admin.password")
     String adminPassword;
 
-    @ConfigProperty(name = "keycloak.url", defaultValue = "https://auth.strimzi-sandbox.enmasse.io/auth")
+    @ConfigProperty(name = "keycloak.url", defaultValue = "https://auth.kafka.lulf.no/auth")
     String keycloakUrl;
 
     @ConfigProperty(name = "keycloak.realm", defaultValue = "k8s")

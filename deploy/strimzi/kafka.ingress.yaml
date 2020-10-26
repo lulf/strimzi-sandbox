@@ -8,10 +8,10 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: "nginx"
     kubernetes.io/tls-acme: "true" 
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: dummy.strimzi-sandbox.enmasse.io 
+  - host: dummy.kafka.lulf.no 
     http:
       paths:
       - backend:
@@ -20,6 +20,6 @@ spec:
         path: /
   tls:
   - hosts:
-      - broker-0.strimzi-sandbox.enmasse.io
-      - bootstrap.strimzi-sandbox.enmasse.io
+      - broker-0.kafka.lulf.no
+      - bootstrap.kafka.lulf.no
     secretName: kafka-cert

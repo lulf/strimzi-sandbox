@@ -52,7 +52,7 @@ spec:
         - name: QUARKUS_HTTP_CORS
           value: "true"
         - name: QUARKUS_HTTP_CORS_ORIGINS
-          value: "http://localhost:3000,https://strimzi-sandbox.enmasse.io,https://api.strimzi-sandbox.enmasse.io"
+          value: "http://localhost:3000,https://kafka.lulf.no,https://api.kafka.lulf.no"
         - name: ENMASSE_SANDBOX_EXPIRATION_TIME
           valueFrom:
             configMapKeyRef:

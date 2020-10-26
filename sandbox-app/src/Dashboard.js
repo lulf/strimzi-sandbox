@@ -22,7 +22,7 @@ var generateKubeConfig = function(kc, user, tenantNamespace) {
             {
                 "name": "strimzi-sandbox",
                 "cluster": {
-                    "server": "https://kube-api.strimzi-sandbox.enmasse.io"
+                    "server": "https://kube-api.kafka.lulf.no"
                 }
             }
         ],
@@ -36,7 +36,7 @@ var generateKubeConfig = function(kc, user, tenantNamespace) {
                             "client-id": "webapp",
                             "id-token": kc.idToken,
                             "refresh-token": kc.refreshToken,
-                            "idp-issuer-url": "https://auth.strimzi-sandbox.enmasse.io/auth/realms/k8s"
+                            "idp-issuer-url": "https://auth.kafka.lulf.no/auth/realms/k8s"
                         }
                     }
                 }
@@ -180,11 +180,11 @@ class Dashboard extends Component {
                                 </pre>
                                 <h4>Producing messages</h4>
                                 <pre>
-                                kafka-console-producer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --producer.config client-config.properties
+                                kafka-console-producer.sh --bootstrap-server bootstrap.kafka.lulf.no:443 --topic {topicPrefix}.mytopic --producer.config client-config.properties
                                 </pre>
                                 <h4>Consuming messages</h4>
                                 <pre>
-                                kafka-console-consumer.sh --bootstrap-server bootstrap.strimzi-sandbox.enmasse.io:443 --topic {topicPrefix}.mytopic --from-beginning --consumer.config client-config.properties
+                                kafka-console-consumer.sh --bootstrap-server bootstrap.kafka.lulf.no:443 --topic {topicPrefix}.mytopic --from-beginning --consumer.config client-config.properties
                                 </pre>
                                 </div>
 

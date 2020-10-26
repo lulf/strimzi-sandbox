@@ -105,8 +105,8 @@ public class SandboxTenantProvisioner implements SyncedCache.Listener {
             status.setProvisionTimestamp(dateTimeFormatter.format(now));
             status.setExpirationTimestamp(dateTimeFormatter.format(now.plus(expirationTime)));
             status.setNamespace(ns);
-            status.setBootstrap("bootstrap.strimzi-sandbox.enmasse.io:443");
-            status.setBrokers(Collections.singletonList("broker-0.strimzi-sandbox.enmasse.io:443"));
+            status.setBootstrap("bootstrap.kafka.lulf.no:443");
+            status.setBrokers(Collections.singletonList("broker-0.kafka.lulf.no:443"));
             unprovisioned.setStatus(status);
             op.updateStatus(unprovisioned);
             numProvisioned++;

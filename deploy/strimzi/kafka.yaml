@@ -19,23 +19,23 @@ spec:
         type: ingress
         #authentication:
         #  type: oauth
-        #  validIssuerUri: https://auth.strimzi-sandbox.enmasse.io/auth/realms/k8s
+        #  validIssuerUri: https://auth.kafka.lulf.no/auth/realms/k8s
         #  clientId: kafka
         #  clientSecret:
         #    secretName: kafka-oidc
         #    key: clientsecret
         #  userNameClaim: preferred_username
-        #  introspectionEndpointUri: https://auth.strimzi-sandbox.enmasse.io/auth/realms/k8s/protocol/openid-connect/token/introspect
+        #  introspectionEndpointUri: https://auth.kafka.lulf.no/auth/realms/k8s/protocol/openid-connect/token/introspect
         configuration:
           brokerCertChainAndKey:
             secretName: kafka-cert
             certificate: tls.crt
             key: tls.key
           bootstrap:
-            host: bootstrap.strimzi-sandbox.enmasse.io
+            host: bootstrap.kafka.lulf.no
           brokers:
             - broker: 0
-              host: broker-0.strimzi-sandbox.enmasse.io
+              host: broker-0.kafka.lulf.no
     config:
       offsets.topic.replication.factor: 1
       transaction.state.log.replication.factor: 1

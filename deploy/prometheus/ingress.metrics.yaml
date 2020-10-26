@@ -5,10 +5,10 @@ metadata:
   namespace: monitoring
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: metrics.strimzi-sandbox.enmasse.io
+  - host: metrics.kafka.lulf.no
     http:
       paths:
       - backend:
@@ -17,5 +17,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - metrics.strimzi-sandbox.enmasse.io
+      - metrics.kafka.lulf.no
     secretName: monitoring-metrics-cert

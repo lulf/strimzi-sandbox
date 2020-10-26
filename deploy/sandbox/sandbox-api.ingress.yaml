@@ -5,10 +5,10 @@ metadata:
   namespace: sandbox
   annotations:
     kubernetes.io/ingress.class: "nginx"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod-dns"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   rules:
-  - host: api.strimzi-sandbox.enmasse.io 
+  - host: api.kafka.lulf.no 
     http:
       paths:
       - backend:
@@ -17,5 +17,5 @@ spec:
         path: /
   tls:
   - hosts:
-      - api.strimzi-sandbox.enmasse.io
+      - api.kafka.lulf.no
     secretName: api-cert
